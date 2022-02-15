@@ -9,166 +9,204 @@
 <!-- HTML Section -->
 <div class="container-fluid mt-3">
 
+@if (string.IsNullOrEmpty(fileString))
+{
     <div class="row my-4 justify-content-center">
         <h1 class="display-3 text-center text-muted">Prometheus Configurator</h1>
+
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Save Configuration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Delete Changes</a>
+            </li>
+            <li class="nav-item">
+                <sup>
+                    <h6 class="float-end">
+                        <p> <span class="badge bg-warning text-dark" style="margin-top:11px;">No previous config found</span></p>
+                    </h6>
+                </sup>
+            </li>
+        </ul>
+
     </div>
+}
+else
+{
+    <div class="row my-4 justify-content-center">
+        <h1 class="display-3 text-center text-muted">Prometheus Configurator </h1>
+
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Save Configuration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Delete Changes</a>
+            </li>
+            <li class="nav-item">
+                <p> <span class="badge bg-success text-white" style="margin-top:11px;">Config loaded</span></p>
+            </li>
+        </ul>
+    </div>
+}
 
 
-    <!-- Control Forms -->
-    <div class="row my-5">
+<!-- Control Forms -->
+<div class="row my-5">
 
 
-        <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel">
-            <div class="carousel-indicators">
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-            </div>
-
-            <div class="carousel-inner">
-
-                <!-- Add Form Input -->
-                <div class="carousel-item active" data-bs-interval="9000000000">
-                    <div class="card w-50 mx-auto">
-                        <div class="card-header">
-                            <h3 class="text-center">Add</h3>
-                        </div>
-                        <div class="card-body border border-info">
-                            <div class="input-group needs-validation input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Job Name</span>
-                                <input type="text" class="form-control" @bind="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="basic-addon1" required/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Targets</span>
-                                <input type="text" class="form-control" @bind="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Labels</span>
-                                <input type="text" class="form-control" @bind="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
-                                <input type="text" class="form-control" @bind="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
-                                <input type="text" class="form-control" @bind="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Metrics Path</span>
-                                <input type="text" class="form-control" @bind="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
-                                <select class="form-select" id="inputGroupSelect01">
-                                    <option value="https">https</option>
-                                    <option value="http">http</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card-footer text-muted">
-                            <button type="button" class="btn btn-primary float-end" @onclick="addScrapingTarget">Add</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Update Form Input -->
-                <div class="carousel-item" data-bs-interval="9000000000">
-                    <div class="card w-50 mx-auto">
-                        <div class="card-header">
-                            <h3 class="text-center">Update</h3>
-                        </div>
-                        <div class="card-body border border-warning">
-                            <div class="input-group input-group-sm mb-3">
-                                <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                                <select class="form-select" id="inputGroupSelect01">
-                                    <option value="https">placeholder</option>
-                                    <option value="http">http</option>
-                                </select>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Targets</span>
-                                <input type="text" class="form-control" @bind="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Labels</span>
-                                <input type="text" class="form-control" @bind="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
-                                <input type="text" class="form-control" @bind="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
-                                <input type="text" class="form-control" @bind="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <span class="input-group-text" id="basic-addon1">Metrics Path</span>
-                                <input type="text" class="form-control" @bind="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
-                            </div>
-                            <div class="input-group input-group-sm mb-3">
-                                <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
-                                <select class="form-select" id="inputGroupSelect01">
-                                    <option value="https">https</option>
-                                    <option value="http">http</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card-footer text-muted">
-                            <button type="button" class="btn btn-primary float-end" @onclick="updateScrapingTarget">Update</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Delete Form Input -->
-                <div class="carousel-item" data-bs-interval="9000000000">
-                    <div class="card w-50 mx-auto">
-                        <div class="card-header">
-                            <h3 class="text-center">Remove</h3>
-                        </div>
-                        <div class="card-body border border-secondary">
-                            <div class="input-group input-group-sm mb-3">
-                                <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                                <select class="form-select" id="inputGroupSelect01">
-                                    <option value="https">placeholder</option>
-                                    <option value="http">http</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card-footer text-muted">
-                            <button type="button" class="btn btn-danger float-end" @onclick="removeScrapingTarget">Remove</button>
-                        </div>
-                    </div>
-
-                    <!-- Upload configuration -->
-                    <div class="card my-4 w-50 mx-auto">
-                        <div class="card-header">
-                            <h3 class="text-center">Upload Configuration</h3>
-                        </div>
-                        <div class="card-body border border-secondary">
-                            <div class="input-group mb-3">
-                                <InputFile OnChange="@OnInputFileChange"></InputFile>
-                            </div>
-                        </div>
-                        <div class="card-footer text-muted">
-                            <button type="button" class="btn btn-warning float-end" @onclick="uploadConfiguration">Upload</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+    <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
         </div>
 
+        <div class="carousel-inner">
+
+            <!-- Add Form Input -->
+            <div class="carousel-item active" data-bs-interval="9000000000">
+                <div class="card w-50 mx-auto">
+                    <div class="card-header">
+                        <h3 class="text-center">Add</h3>
+                    </div>
+                    <div class="card-body border border-info">
+                        <div class="input-group needs-validation input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Job Name</span>
+                            <input type="text" class="form-control" @bind="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="basic-addon1" required/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Targets</span>
+                            <input type="text" class="form-control" @bind="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Labels</span>
+                            <input type="text" class="form-control" @bind="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
+                            <input type="text" class="form-control" @bind="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
+                            <input type="text" class="form-control" @bind="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Metrics Path</span>
+                            <input type="text" class="form-control" @bind="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
+                            <select class="form-select" id="inputGroupSelect01">
+                                <option value="https">https</option>
+                                <option value="http">http</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <button type="button" class="btn btn-primary float-end" @onclick="addScrapingTarget">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Form Input -->
+            <div class="carousel-item" data-bs-interval="9000000000">
+                <div class="card w-50 mx-auto">
+                    <div class="card-header">
+                        <h3 class="text-center">Update</h3>
+                    </div>
+                    <div class="card-body border border-warning">
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
+                            <select class="form-select" id="inputGroupSelect01">
+                                <option value="https">placeholder</option>
+                                <option value="http">http</option>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Targets</span>
+                            <input type="text" class="form-control" @bind="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Labels</span>
+                            <input type="text" class="form-control" @bind="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
+                            <input type="text" class="form-control" @bind="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
+                            <input type="text" class="form-control" @bind="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="basic-addon1">Metrics Path</span>
+                            <input type="text" class="form-control" @bind="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
+                            <select class="form-select" id="inputGroupSelect01">
+                                <option value="https">https</option>
+                                <option value="http">http</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <button type="button" class="btn btn-primary float-end" @onclick="updateScrapingTarget">Update</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Form Input -->
+            <div class="carousel-item" data-bs-interval="9000000000">
+                <div class="card w-50 mx-auto">
+                    <div class="card-header">
+                        <h3 class="text-center">Remove</h3>
+                    </div>
+                    <div class="card-body border border-secondary">
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
+                            <select class="form-select" id="inputGroupSelect01">
+                                <option value="https">placeholder</option>
+                                <option value="http">http</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <button type="button" class="btn btn-danger float-end" @onclick="removeScrapingTarget">Remove</button>
+                    </div>
+                </div>
+
+                <!-- Upload configuration -->
+                <div class="card my-4 w-50 mx-auto">
+                    <div class="card-header">
+                        <h3 class="text-center">Upload Configuration</h3>
+                    </div>
+                    <div class="card-body border border-secondary">
+                        <div class="input-group mb-3">
+                            <InputFile OnChange="@OnInputFileChange"></InputFile>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <button type="button" class="btn btn-warning float-end" @onclick="uploadConfiguration">Upload</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
     </div>
+
+</div>
 
 </div>
 
@@ -212,7 +250,7 @@
     protected override async Task OnInitializedAsync()
     {
     // Load last config
-        if (File.Exists(filePath))
+        if (File.Exists(filePath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
             fileString = System.IO.File.ReadAllText(filePath);
@@ -358,7 +396,7 @@
         {
             Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
         }
-        
+
 
     // Convert to JSON
         try
@@ -369,7 +407,7 @@
         {
             Console.WriteLine($"[CONVERSION:JSON:EXCEPTION] {e}");
         }
-        
+
 
     // Convert to .Net object
         try
@@ -380,7 +418,7 @@
         {
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
-        
+
 
     // Debug
         Console.WriteLine(prometheusConfiguration.ToString());
@@ -407,7 +445,7 @@
         {
             Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
         }
-        
+
 
     // Write to YAML file on server
         try
@@ -418,7 +456,6 @@
         {
             Console.WriteLine($"[FILE:WRITE:EXCEPTION] {e}");
         }
-        
     }
 
     private async Task saveUploadedConfig()
@@ -446,7 +483,6 @@
         {
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
-        
     }
 
 
