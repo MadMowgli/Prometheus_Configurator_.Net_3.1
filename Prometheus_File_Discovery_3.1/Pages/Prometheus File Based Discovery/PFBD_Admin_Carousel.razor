@@ -361,10 +361,14 @@
 
     private async Task readUpload()
     {
+        // Read file
         using (var reader = new System.IO.StreamReader(file.Data))
         {
             fileString = await reader.ReadToEndAsync();
         }
+        
+        // Write to YAML file on server
+        await File.WriteAllTextAsync("Data/uploaded_prometheus_config.yml", fileString);
     }
 
     private async Task saveUploadedConfig()
