@@ -28,4 +28,23 @@
       <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\README.md" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="obj\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="obj\**" />
+      <None Remove="Prometheus_File_Discovery_3.1.csproj.DotSettings" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="obj\**" />
+      <Content Remove="appsettings.json" />
+      <Content Remove="appsettings.Development.json" />
+    </ItemGroup>
+
 </Project>

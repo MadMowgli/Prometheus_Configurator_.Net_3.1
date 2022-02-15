@@ -3,3 +3,9 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+.idea
+Prometheus_File_Discovery_3.1/bin
+Prometheus_File_Discovery_3.1/obj
+*.csproj
+Prometheus_File_Discovery_3.1.csproy.DotSettings
