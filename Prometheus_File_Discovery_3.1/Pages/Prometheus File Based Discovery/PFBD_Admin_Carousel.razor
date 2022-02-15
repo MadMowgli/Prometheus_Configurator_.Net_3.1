@@ -1,0 +1,396 @@
+﻿<!-- Blazor Section -->
+@page "/PFBD_Admin"
+@using YamlDotNet.Serialization
+@using Newtonsoft.Json
+@using System.IO
+@using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
+@* @inject HttpClient Http *@
+
+<!-- HTML Section -->
+<div class="container-fluid mt-3">
+
+    <div class="row my-4 justify-content-center">
+        <h1 class="display-3 text-center text-muted">Prometheus Configurator</h1>
+    </div>
+
+
+    <!-- Control Forms -->
+    <div class="row my-5">
+
+
+        <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            </div>
+
+            <div class="carousel-inner">
+
+                <!-- Add Form Input -->
+                <div class="carousel-item active" data-bs-interval="9000000000">
+                    <div class="card w-50 mx-auto">
+                        <div class="card-header">
+                            <h3 class="text-center">Add</h3>
+                        </div>
+                        <div class="card-body border border-info">
+                            <div class="input-group needs-validation input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Job Name</span>
+                                <input type="text" class="form-control" @bind="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="basic-addon1" required/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Targets</span>
+                                <input type="text" class="form-control" @bind="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Labels</span>
+                                <input type="text" class="form-control" @bind="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
+                                <input type="text" class="form-control" @bind="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
+                                <input type="text" class="form-control" @bind="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Metrics Path</span>
+                                <input type="text" class="form-control" @bind="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
+                                <select class="form-select" id="inputGroupSelect01">
+                                    <option value="https">https</option>
+                                    <option value="http">http</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <button type="button" class="btn btn-primary float-end" @onclick="addScrapingTarget">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Form Input -->
+                <div class="carousel-item" data-bs-interval="9000000000">
+                    <div class="card w-50 mx-auto">
+                        <div class="card-header">
+                            <h3 class="text-center">Update</h3>
+                        </div>
+                        <div class="card-body border border-warning">
+                            <div class="input-group input-group-sm mb-3">
+                                <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
+                                <select class="form-select" id="inputGroupSelect01">
+                                    <option value="https">placeholder</option>
+                                    <option value="http">http</option>
+                                </select>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Targets</span>
+                                <input type="text" class="form-control" @bind="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Labels</span>
+                                <input type="text" class="form-control" @bind="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
+                                <input type="text" class="form-control" @bind="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
+                                <input type="text" class="form-control" @bind="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <span class="input-group-text" id="basic-addon1">Metrics Path</span>
+                                <input type="text" class="form-control" @bind="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                            </div>
+                            <div class="input-group input-group-sm mb-3">
+                                <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
+                                <select class="form-select" id="inputGroupSelect01">
+                                    <option value="https">https</option>
+                                    <option value="http">http</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <button type="button" class="btn btn-primary float-end" @onclick="updateScrapingTarget">Update</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delete Form Input -->
+                <div class="carousel-item" data-bs-interval="9000000000">
+                    <div class="card w-50 mx-auto">
+                        <div class="card-header">
+                            <h3 class="text-center">Remove</h3>
+                        </div>
+                        <div class="card-body border border-secondary">
+                            <div class="input-group input-group-sm mb-3">
+                                <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
+                                <select class="form-select" id="inputGroupSelect01">
+                                    <option value="https">placeholder</option>
+                                    <option value="http">http</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <button type="button" class="btn btn-danger float-end" @onclick="removeScrapingTarget">Remove</button>
+                        </div>
+                    </div>
+
+                    <!-- Upload configuration -->
+                    <div class="card my-4 w-50 mx-auto">
+                        <div class="card-header">
+                            <h3 class="text-center">Upload Configuration</h3>
+                        </div>
+                        <div class="card-body border border-secondary">
+                            <div class="input-group mb-3">
+                                <InputFile OnChange="@OnInputFileChange"></InputFile>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <button type="button" class="btn btn-warning float-end" @onclick="uploadConfiguration">Upload</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Code Section-->
+
+@code {
+    // Fields
+    private string? add_jobName { get; set; }
+    private string? add_scrapeInterval { get; set; }
+    private string? add_scrapeTimeout { get; set; }
+    private string? add_metricsPath { get; set; }
+    private string? add_scheme { get; set; }
+    private string? add_targets { get; set; }
+    private string? add_labels { get; set; }
+    private List<string> add_targetList { get; } = new List<string>();
+    private List<ConfigurationComponents.Label> add_labelList { get; } = new List<ConfigurationComponents.Label>();
+
+    private string? update_jobName { get; set; }
+    private string? update_scrapeInterval { get; set; }
+    private string? update_scrapeTimeout { get; set; }
+    private string? update_metricsPath { get; set; }
+    private string? update_scheme { get; set; }
+    private string? update_targets { get; set; }
+    private string? update_labels { get; set; }
+    private List<string> update_targetList { get; } = new List<string>();
+    private Dictionary<string, string> update_labelDict { get; } = new Dictionary<string, string>();
+
+    private string? delete_jobName { get; set; }
+
+    // File input fields
+    private IFileListEntry file;
+    private dynamic? dynamicConfig { get; set; }
+    private string fileString { get; set; }
+
+    private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
+    private string lastPrometheusConfigurationYAML { get; set; }
+
+    // Load data
+    protected override async Task OnInitializedAsync()
+    {
+    // Load last config
+    // config = await Http.GetFromJsonAsync<PrometheusJSON.Rootobject>("sample-data/prometheus.json");
+    }
+
+    // Methods
+    public void addScrapingTarget()
+    {
+    // Set defaults where necessary
+        if (add_jobName == null || add_jobName.Equals(""))
+        {
+            add_jobName = "JobDefault";
+        }
+        if (add_scrapeInterval == null || add_scrapeInterval.Equals(""))
+        {
+            add_scrapeInterval = "10s";
+        }
+        if (add_scrapeTimeout == null || add_scrapeTimeout.Equals(""))
+        {
+            add_scrapeTimeout = "5s";
+        }
+        if (add_metricsPath == null || add_metricsPath.Equals(""))
+        {
+            add_metricsPath = "/metrics";
+        }
+        if (add_scheme == null || add_scheme.Equals(""))
+        {
+            add_scheme = "https";
+        }
+        if (add_targets == null || add_targets.Equals(""))
+        {
+            add_targets = "192.168.0.1";
+        }
+        if (add_labels == null || add_labels.Equals(""))
+        {
+            add_labels = "label_1:value_1";
+        }
+
+    // Fill up collections
+        add_targetList.AddRange(add_targets.Split(","));
+        var splitLabels = add_labels.Split(":");
+        for (var index = 0; index < splitLabels.Length; index += 2)
+        {
+            var key = splitLabels[index];
+            var value = splitLabels[index + 1];
+            var label = new ConfigurationComponents.Label(key, value);
+            add_labelList.Add(label);
+        }
+
+    // Create new ProemtheusJob
+        var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
+            add_metricsPath, add_scheme, add_targetList, add_labelList);
+
+
+    // Debug
+        Console.WriteLine(add_jobName);
+        Console.WriteLine(add_scrapeInterval);
+        Console.WriteLine(add_scrapeTimeout);
+        Console.WriteLine(add_metricsPath);
+        Console.WriteLine(add_scheme);
+        Console.WriteLine(add_targetList.ElementAt(0));
+        Console.WriteLine(add_labelList);
+
+    // JobObj Debug
+        Console.WriteLine(prometheusJob.JobName);
+        Console.WriteLine(prometheusJob.Scrape_Interval);
+
+    // API Debug
+    // Console.WriteLine(config.scrape_configs[0].job_name);
+
+    // Deserialize Debug
+    //readYamlConfig();
+    }
+
+    public void updateScrapingTarget()
+    {
+    // Set defaults where necessary
+        if (update_jobName == null || update_jobName.Equals(""))
+        {
+            update_jobName = "JobDefault";
+        }
+        if (update_scrapeInterval == null || update_scrapeInterval.Equals(""))
+        {
+            update_scrapeInterval = "10s";
+        }
+        if (update_scrapeTimeout == null || update_scrapeTimeout.Equals(""))
+        {
+            update_scrapeTimeout = "5s";
+        }
+        if (update_metricsPath == null || update_metricsPath.Equals(""))
+        {
+            update_metricsPath = "/metrics";
+        }
+        if (update_scheme == null || update_scheme.Equals(""))
+        {
+            update_scheme = "https";
+        }
+        if (update_targets == null || update_targets.Equals(""))
+        {
+            update_targets = "192.168.0.1";
+        }
+        if (update_labels == null || update_labels.Equals(""))
+        {
+            update_labels = "label_1:value_1";
+        }
+
+    // Fill up collections
+        update_targetList.AddRange(update_targets.Split(","));
+        var splitLabels = update_labels.Split(":");
+        for (var index = 0; index < splitLabels.Length; index += 2)
+        {
+            update_labelDict.Add(splitLabels[index], splitLabels[index + 1]);
+        }
+
+
+    // Debug
+        Console.WriteLine(update_jobName);
+        Console.WriteLine(update_scrapeInterval);
+        Console.WriteLine(update_scrapeTimeout);
+        Console.WriteLine(update_metricsPath);
+        Console.WriteLine(update_scheme);
+        Console.WriteLine(update_targetList.ElementAt(0));
+        Console.WriteLine(update_labelDict[splitLabels[0]]);
+    }
+
+    public void removeScrapingTarget()
+    {
+    }
+
+    public async void uploadConfiguration()
+    {
+        // Read files
+        await readUpload();
+
+        // Convert to JSON
+        convertUploadToJson(fileString);
+
+        // Convert to .Net object
+        prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
+
+        // Debug
+        Console.WriteLine(prometheusConfiguration.ToString());
+    }
+
+
+    private void OnInputFileChange(IFileListEntry[] files)
+    {
+        Console.WriteLine("File upload detected");
+        file = files.FirstOrDefault();
+    }
+
+    private async Task readUpload()
+    {
+        using (var reader = new System.IO.StreamReader(file.Data))
+        {
+            fileString = await reader.ReadToEndAsync();
+        }
+    }
+
+    private async Task saveUploadedConfig()
+    {
+        
+    }
+
+    private void convertUploadToJson(string fileString)
+    {
+    // Convert file input to YAML object
+        var deserializer = new Deserializer();
+        var stringReader = new StringReader(fileString);
+        var yamlObject = deserializer.Deserialize(stringReader);
+
+    // Convert YAML object to JSON object
+        var serializer = new JsonSerializer();
+        var stringWriter = new StringWriter();
+        serializer.Serialize(stringWriter, yamlObject);
+
+    // DEBUG
+    // Console.WriteLine(stringWriter.ToString());
+
+    // Create dynamic class out of JSON object
+        dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
+    }
+
+
+
+}
