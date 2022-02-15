@@ -221,7 +221,6 @@
             Console.WriteLine("Configuration loaded successfully: ");
             Console.WriteLine(prometheusConfiguration.ToString());
         }
-
     }
 
     // Methods
@@ -350,16 +349,16 @@
 
     public async void uploadConfiguration()
     {
-        // Read files
+    // Read files
         await readUpload();
 
-        // Convert to JSON
+    // Convert to JSON
         convertUploadToJson(fileString);
 
-        // Convert to .Net object
+    // Convert to .Net object
         prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
 
-        // Debug
+    // Debug
         Console.WriteLine(prometheusConfiguration.ToString());
     }
 
@@ -372,19 +371,18 @@
 
     private async Task readUpload()
     {
-        // Read file
+    // Read file
         using (var reader = new System.IO.StreamReader(file.Data))
         {
             fileString = await reader.ReadToEndAsync();
         }
-        
-        // Write to YAML file on server
+
+    // Write to YAML file on server
         await File.WriteAllTextAsync(filePath, fileString);
     }
 
     private async Task saveUploadedConfig()
     {
-        
     }
 
     private void convertUploadToJson(string fileString)

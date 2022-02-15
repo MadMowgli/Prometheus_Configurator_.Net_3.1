@@ -5,7 +5,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
 {
-
     public static class JsonToPrometheusConverter
     {
         // Fields
@@ -193,7 +192,6 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                             {
                                 foreach (JProperty alertManagerObject in alertManagersObject.Properties())
                                 {
-
                                     // Each obect inside the array is a new alertManager
                                     foreach (JObject alertManager in alertManagerObject.Values())
                                     {

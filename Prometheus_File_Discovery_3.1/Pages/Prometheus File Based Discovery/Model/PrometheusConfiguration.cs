@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 
 namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
 {
-
     public class PrometheusConfiguration
     {
         // Remote read & Write are commented out since we don't need this in our current setup.

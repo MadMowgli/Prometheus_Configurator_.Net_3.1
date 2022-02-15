@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
 {
-
     public class PrometheusJob
     {
         // Fields
@@ -47,7 +46,8 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
 
         public Dictionary<string, List<string>> File_Sd_Configs { get; set; }
 
-        public List<ConfigurationComponents.Static_Configs> Static_Configs { get; set; } = new List<ConfigurationComponents.Static_Configs>();
+        public List<ConfigurationComponents.Static_Configs> Static_Configs { get; set; } =
+            new List<ConfigurationComponents.Static_Configs>();
 
         // Custom Methods
         public void addLabel(string key, string value)

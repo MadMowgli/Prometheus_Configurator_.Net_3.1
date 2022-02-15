@@ -1,6 +1,5 @@
 ﻿namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Data.Example
 {
-
     public class PrometheusJSON
     {
         public class Rootobject

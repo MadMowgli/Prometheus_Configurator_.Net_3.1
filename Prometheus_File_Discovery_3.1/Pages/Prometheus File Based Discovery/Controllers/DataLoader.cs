@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Controllers
 {
-
-
-
     [Route("api/upload")]
     [ApiController]
     public class DataLoader : ControllerBase

@@ -247,7 +247,6 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
         public class Scrape_Configs
         {
-
             // Constructor
             public Scrape_Configs()
             {
