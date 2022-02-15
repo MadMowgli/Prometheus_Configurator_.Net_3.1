@@ -196,6 +196,8 @@
     private List<string> update_targetList { get; } = new List<string>();
     private Dictionary<string, string> update_labelDict { get; } = new Dictionary<string, string>();
 
+    private readonly string filePath = "Data/uploaded_prometheus_config.yml";
+
     private string? delete_jobName { get; set; }
 
     // File input fields
@@ -210,7 +212,16 @@
     protected override async Task OnInitializedAsync()
     {
     // Load last config
-    // config = await Http.GetFromJsonAsync<PrometheusJSON.Rootobject>("sample-data/prometheus.json");
+        if (File.Exists(filePath))
+        {
+            Console.WriteLine("Uploaded Configuration detected...");
+            fileString = System.IO.File.ReadAllText(filePath);
+            convertUploadToJson(fileString);
+            prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
+            Console.WriteLine("Configuration loaded successfully: ");
+            Console.WriteLine(prometheusConfiguration.ToString());
+        }
+
     }
 
     // Methods
@@ -368,7 +379,7 @@
         }
         
         // Write to YAML file on server
-        await File.WriteAllTextAsync("Data/uploaded_prometheus_config.yml", fileString);
+        await File.WriteAllTextAsync(filePath, fileString);
     }
 
     private async Task saveUploadedConfig()
