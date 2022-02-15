@@ -246,7 +246,7 @@ else
     private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
     private string lastPrometheusConfigurationYAML { get; set; }
 
-    // Load data
+    // ------------------------------------------  Methods to load & save data
     protected override async Task OnInitializedAsync()
     {
     // Load last config
@@ -260,8 +260,68 @@ else
             Console.WriteLine(prometheusConfiguration.ToString());
         }
     }
+    
+    private void OnInputFileChange(IFileListEntry[] files)
+    {
+        Console.WriteLine("File upload detected");
+        file = files.FirstOrDefault();
+    }
+    
+    private void convertUploadToJson(string fileString)
+    {
+    // Convert file input to YAML object
+        try
+        {
+            var deserializer = new Deserializer();
+            var stringReader = new StringReader(fileString);
+            var yamlObject = deserializer.Deserialize(stringReader);
 
-    // Methods
+    // Convert YAML object to JSON object
+            var serializer = new JsonSerializer();
+            var stringWriter = new StringWriter();
+            serializer.Serialize(stringWriter, yamlObject);
+
+    // Create dynamic class out of JSON object
+            dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
+        }
+    }
+    
+    private async Task readUpload()
+    {
+    // Read file
+        try
+        {
+            using (var reader = new System.IO.StreamReader(file.Data))
+            {
+                fileString = await reader.ReadToEndAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
+        }
+
+
+    // Write to YAML file on server
+        try
+        {
+            await File.WriteAllTextAsync(filePath, fileString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[FILE:WRITE:EXCEPTION] {e}");
+        }
+    }
+    
+    private async Task saveConfig()
+    {
+    }
+
+    // ------------------------------------------ Methods to manipulate config model
     public void addScrapingTarget()
     {
     // Set defaults where necessary
@@ -425,65 +485,12 @@ else
     }
 
 
-    private void OnInputFileChange(IFileListEntry[] files)
-    {
-        Console.WriteLine("File upload detected");
-        file = files.FirstOrDefault();
-    }
+    
+    
 
-    private async Task readUpload()
-    {
-    // Read file
-        try
-        {
-            using (var reader = new System.IO.StreamReader(file.Data))
-            {
-                fileString = await reader.ReadToEndAsync();
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
-        }
-
-
-    // Write to YAML file on server
-        try
-        {
-            await File.WriteAllTextAsync(filePath, fileString);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[FILE:WRITE:EXCEPTION] {e}");
-        }
-    }
-
-    private async Task saveUploadedConfig()
-    {
-    }
-
-    private void convertUploadToJson(string fileString)
-    {
-    // Convert file input to YAML object
-        try
-        {
-            var deserializer = new Deserializer();
-            var stringReader = new StringReader(fileString);
-            var yamlObject = deserializer.Deserialize(stringReader);
-
-    // Convert YAML object to JSON object
-            var serializer = new JsonSerializer();
-            var stringWriter = new StringWriter();
-            serializer.Serialize(stringWriter, yamlObject);
-
-    // Create dynamic class out of JSON object
-            dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
-        }
-    }
+    
+    
+    
 
 
 
