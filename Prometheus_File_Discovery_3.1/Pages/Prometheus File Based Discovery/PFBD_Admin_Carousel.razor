@@ -350,13 +350,37 @@
     public async void uploadConfiguration()
     {
     // Read files
-        await readUpload();
+        try
+        {
+            await readUpload();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
+        }
+        
 
     // Convert to JSON
-        convertUploadToJson(fileString);
+        try
+        {
+            convertUploadToJson(fileString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[CONVERSION:JSON:EXCEPTION] {e}");
+        }
+        
 
     // Convert to .Net object
-        prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
+        try
+        {
+            prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
+        }
+        
 
     // Debug
         Console.WriteLine(prometheusConfiguration.ToString());
@@ -372,13 +396,29 @@
     private async Task readUpload()
     {
     // Read file
-        using (var reader = new System.IO.StreamReader(file.Data))
+        try
         {
-            fileString = await reader.ReadToEndAsync();
+            using (var reader = new System.IO.StreamReader(file.Data))
+            {
+                fileString = await reader.ReadToEndAsync();
+            }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[UPLOAD:EXCEPTION] {e}");
+        }
+        
 
     // Write to YAML file on server
-        await File.WriteAllTextAsync(filePath, fileString);
+        try
+        {
+            await File.WriteAllTextAsync(filePath, fileString);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[FILE:WRITE:EXCEPTION] {e}");
+        }
+        
     }
 
     private async Task saveUploadedConfig()
@@ -388,20 +428,25 @@
     private void convertUploadToJson(string fileString)
     {
     // Convert file input to YAML object
-        var deserializer = new Deserializer();
-        var stringReader = new StringReader(fileString);
-        var yamlObject = deserializer.Deserialize(stringReader);
+        try
+        {
+            var deserializer = new Deserializer();
+            var stringReader = new StringReader(fileString);
+            var yamlObject = deserializer.Deserialize(stringReader);
 
     // Convert YAML object to JSON object
-        var serializer = new JsonSerializer();
-        var stringWriter = new StringWriter();
-        serializer.Serialize(stringWriter, yamlObject);
-
-    // DEBUG
-    // Console.WriteLine(stringWriter.ToString());
+            var serializer = new JsonSerializer();
+            var stringWriter = new StringWriter();
+            serializer.Serialize(stringWriter, yamlObject);
 
     // Create dynamic class out of JSON object
-        dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
+            dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
+        }
+        
     }
 
 
