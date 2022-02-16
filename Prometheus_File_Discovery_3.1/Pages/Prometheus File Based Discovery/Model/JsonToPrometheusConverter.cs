@@ -30,7 +30,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                     case "global":
                         // Create new configComponent
                         var global = new ConfigurationComponents.Global();
-                        Console.WriteLine("Parsing global component...");
+                        // Console.WriteLine("Parsing global component...");
 
                         // Loop over object properties
                         foreach (JObject globalComponentValues in configProperty.Values<object>())
@@ -40,18 +40,18 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                 {
                                     // Check for each subtype
                                     var propName = globalComponentProperty.Name;
-                                    Console.WriteLine("Parsing " + propName + " of global component...");
+                                    // Console.WriteLine("Parsing " + propName + " of global component...");
 
                                     if (propName == "scrape_interval")
                                     {
                                         global.scrape_interval = globalComponentProperty.Value.ToString();
-                                        Console.WriteLine("Scrape Interval: " + globalComponentProperty.Value);
+                                        // Console.WriteLine("Scrape Interval: " + globalComponentProperty.Value);
                                     }
 
                                     if (propName == "evaluation_interval")
                                     {
                                         global.evaluation_interval = globalComponentProperty.Value.ToString();
-                                        Console.WriteLine("Evaluation Interval: " + globalComponentProperty.Value);
+                                        // Console.WriteLine("Evaluation Interval: " + globalComponentProperty.Value);
                                     }
                                     // if(name.Equals("external_labels")) { global.evaluation_interval = prop.Value.ToString(); }
                                 }
@@ -64,13 +64,13 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                     case "scrape_configs":
                         // Create new configComponent
                         // Each scrape_config element should represents a prometheus job, according to the docs.
-                        Console.WriteLine("Parsing scrape_configs component...");
+                        // Console.WriteLine("Parsing scrape_configs component...");
 
                         // Loop over object properties
                         // The configProperty is actually a list (JArray) containing jobObjects
                         foreach (JArray jobArray in configProperty.Values<object>())
                         {
-                            Console.WriteLine("Found Prometheus Jobs: " + jobArray.Count);
+                            // Console.WriteLine("Found Prometheus Jobs: " + jobArray.Count);
                             if (jobArray.Values().Any())
                             {
                                 var count = 0;
@@ -89,36 +89,36 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                         if (propName.Equals("job_name"))
                                         {
                                             prometheusJob.JobName = propValue;
-                                            Console.WriteLine("Job Name: " + propValue);
+                                            // Console.WriteLine("Job Name: " + propValue);
                                         }
 
                                         if (propName.Equals("scrape_interval"))
                                         {
                                             prometheusJob.Scrape_Interval = propValue;
-                                            Console.WriteLine("Scrape Interval: " + propValue);
+                                            // Console.WriteLine("Scrape Interval: " + propValue);
                                         }
 
                                         if (propName.Equals("scrape_timeout"))
                                         {
                                             prometheusJob.Scrape_Timeout = propValue;
-                                            Console.WriteLine("Scrape Timeout: " + propValue);
+                                            // Console.WriteLine("Scrape Timeout: " + propValue);
                                         }
 
                                         if (propName.Equals("honor_labels"))
                                         {
                                             prometheusJob.Honor_Labels = Convert.ToBoolean(propValue);
-                                            Console.WriteLine("Honor Labels: " + propValue);
+                                            // Console.WriteLine("Honor Labels: " + propValue);
                                         }
 
                                         if (propName.Equals("scheme"))
                                         {
                                             prometheusJob.Scheme = propValue;
-                                            Console.WriteLine("Scheme: " + propValue);
+                                            // Console.WriteLine("Scheme: " + propValue);
                                         }
 
                                         if (propName.Equals("static_configs"))
                                         {
-                                            Console.WriteLine("Reading static_configs...");
+                                            // Console.WriteLine("Reading static_configs...");
                                             // The static_configs element contains an array of static_configs
                                             foreach (JArray staticConfigArray in jobProperty.Children())
                                             {
@@ -126,7 +126,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                 foreach (JObject staticConfigJObject in staticConfigArray.Children())
                                                 {
                                                     var static_Configs = new ConfigurationComponents.Static_Configs();
-                                                    Console.WriteLine("staticConfigObject: " + staticConfigArray);
+                                                    // Console.WriteLine("staticConfigObject: " + staticConfigArray);
 
                                                     //Loop over each property
                                                     foreach (var staticConfigProperty in
@@ -142,7 +142,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                                      staticConfigProperty.Values())
                                                             {
                                                                 static_Configs.targets.Add(scrapeTarget.ToString());
-                                                                Console.WriteLine(scrapeTarget.ToString());
+                                                                // Console.WriteLine(scrapeTarget.ToString());
                                                             }
                                                         }
 
@@ -155,7 +155,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                             {
                                                                 string key = customLabel.Name.ToString();
                                                                 string value = customLabel.Value.ToString();
-                                                                Console.WriteLine(key + ":" + value);
+                                                                // Console.WriteLine(key + ":" + value);
                                                                 static_Configs.labels.Add(key, value);
                                                             }
                                                         }
@@ -183,7 +183,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                     case "alerting":
                         // Create new configComponent
                         var alerting = new ConfigurationComponents.Alerting();
-                        Console.WriteLine("Parsing alerting component...");
+                        // Console.WriteLine("Parsing alerting component...");
 
                         // Check if not empty
                         if (configProperty.HasValues)
@@ -207,12 +207,12 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                             if (propName.Equals("scheme"))
                                             {
                                                 prometheusAlertManager.scheme = propValue;
-                                                Console.WriteLine("Alertmanager scheme: " + propValue);
+                                                // Console.WriteLine("Alertmanager scheme: " + propValue);
                                             }
 
                                             if (propName.Equals("static_configs"))
                                             {
-                                                Console.WriteLine("Reading static_configs for alertManager...");
+                                                // Console.WriteLine("Reading static_configs for alertManager...");
                                                 // The static_configs element contains an array of static_configs
                                                 foreach (JArray staticConfigArray in alertManagerProperty.Children())
                                                 {
@@ -222,7 +222,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                     {
                                                         var static_Configs =
                                                             new ConfigurationComponents.Static_Configs();
-                                                        Console.WriteLine("staticConfigObject: " + staticConfigArray);
+                                                        // Console.WriteLine("staticConfigObject: " + staticConfigArray);
 
                                                         //Loop over each property
                                                         foreach (var staticConfigProperty in
@@ -238,7 +238,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                                          staticConfigProperty.Values())
                                                                 {
                                                                     static_Configs.targets.Add(scrapeTarget.ToString());
-                                                                    Console.WriteLine(scrapeTarget.ToString());
+                                                                    // Console.WriteLine(scrapeTarget.ToString());
                                                                 }
                                                             }
 
@@ -251,7 +251,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                                                                 {
                                                                     string key = customLabel.Name.ToString();
                                                                     string value = customLabel.Value.ToString();
-                                                                    Console.WriteLine(key + ":" + value);
+                                                                    // Console.WriteLine(key + ":" + value);
                                                                     static_Configs.labels.Add(key, value);
                                                                 }
                                                             }
@@ -277,13 +277,13 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                     case "rule_files":
                         // Create new configComponent
                         var ruleFiles = new List<string>();
-                        Console.WriteLine("Parsing rule_files component...");
+                        // Console.WriteLine("Parsing rule_files component...");
 
                         // Looop over property values
                         foreach (JArray jArr in configProperty.Values<dynamic>())
                         foreach (var jArrVal in jArr.Value<dynamic>())
                         {
-                            Console.WriteLine("Rule Files: " + jArrVal.ToString());
+                            // Console.WriteLine("Rule Files: " + jArrVal.ToString());
                             ruleFiles.Add(jArrVal.ToString());
                         }
 

@@ -16,7 +16,7 @@
 
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Save Configuration</a>
+                <a class="nav-link active" aria-current="page" @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Delete Changes</a>
@@ -39,7 +39,7 @@ else
 
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">Save Configuration</a>
+                <a class="nav-link active" href="" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Delete Changes</a>
@@ -242,6 +242,7 @@ else
     private IFileListEntry file;
     private dynamic? dynamicConfig { get; set; }
     private string fileString { get; set; }
+    private string jsonConfigString { get; set; }
 
     private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
     private string lastPrometheusConfigurationYAML { get; set; }
@@ -255,9 +256,9 @@ else
             Console.WriteLine("Uploaded Configuration detected...");
             fileString = System.IO.File.ReadAllText(filePath);
             convertUploadToJson(fileString);
-            prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
+            // prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
             Console.WriteLine("Configuration loaded successfully: ");
-            Console.WriteLine(prometheusConfiguration.ToString());
+            Console.WriteLine(jsonConfigString);
         }
     }
     
@@ -283,6 +284,9 @@ else
 
     // Create dynamic class out of JSON object
             dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
+            jsonConfigString = dynamicConfig.ToString();
+            Console.WriteLine("JSON CONFIG STRING: ----------------------------------");
+            Console.WriteLine(jsonConfigString);
         }
         catch (Exception e)
         {
@@ -319,6 +323,11 @@ else
     
     private async Task saveConfig()
     {
+        if (!string.IsNullOrEmpty(fileString))
+        {
+            Console.WriteLine("YAML STRING:");
+            Console.WriteLine(PrometheusYamlDeserializer.serializeToYaml(jsonConfigString));
+        }
     }
 
     // ------------------------------------------ Methods to manipulate config model
