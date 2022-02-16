@@ -3,7 +3,9 @@
 @using YamlDotNet.Serialization
 @using Newtonsoft.Json
 @using System.IO
+@using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
+@using System.Globalization
 @* @inject HttpClient Http *@
 
 <!-- HTML Section -->
@@ -234,7 +236,9 @@ else
     private List<string> update_targetList { get; } = new List<string>();
     private Dictionary<string, string> update_labelDict { get; } = new Dictionary<string, string>();
 
-    private readonly string filePath = "Data/uploaded_prometheus_config.yml";
+    private readonly string lastConfigPath = "Data/uploaded_prometheus_config.yml";
+    private readonly string savedYamlConfigPath = "Data/prometheus.yml";
+    private readonly string savedJsonConfigPath = "Data/targets_";
 
     private string? delete_jobName { get; set; }
 
@@ -243,6 +247,7 @@ else
     private dynamic? dynamicConfig { get; set; }
     private string fileString { get; set; }
     private string jsonConfigString { get; set; }
+    private string yamlConfigString { get; set; }
 
     private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
     private string lastPrometheusConfigurationYAML { get; set; }
@@ -251,10 +256,10 @@ else
     protected override async Task OnInitializedAsync()
     {
     // Load last config
-        if (File.Exists(filePath) && string.IsNullOrEmpty(fileString))
+        if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
-            fileString = System.IO.File.ReadAllText(filePath);
+            fileString = System.IO.File.ReadAllText(lastConfigPath);
             convertUploadToJson(fileString);
             // prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
             Console.WriteLine("Configuration loaded successfully: ");
@@ -313,7 +318,7 @@ else
     // Write to YAML file on server
         try
         {
-            await File.WriteAllTextAsync(filePath, fileString);
+            await File.WriteAllTextAsync(lastConfigPath, fileString);
         }
         catch (Exception e)
         {
@@ -325,8 +330,64 @@ else
     {
         if (!string.IsNullOrEmpty(fileString))
         {
+            
+    // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
+            for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < dynamicConfig["scrape_configs"].Count; scrapeConfigsIndex++)
+            {
+                string jobName = dynamicConfig["scrape_configs"][scrapeConfigsIndex]["job_name"];
+                JArray staticConfigs = dynamicConfig["scrape_configs"][scrapeConfigsIndex]["static_configs"];
+
+                try
+                {
+                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigs.ToString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"[JSON:FILEWRITE:EXCEPTION] {e}");
+                }
+                
+    // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
+                foreach (JObject staticConfigObj in staticConfigs)
+                {
+                    if (staticConfigObj.Property("labels") != null)
+                    {
+                        staticConfigObj["labels"].Parent.Remove();
+                    }
+                    if (staticConfigObj.Property("targets") != null)
+                    {
+                        staticConfigObj["targets"].Parent.Remove();
+                    }
+                    
+                    staticConfigObj["file_sd_configs"] = new JArray(new JObject(new JProperty("files", "targets_" + jobName + ".json")));
+                }
+            }
+            
+    // Clean up duplicate entries in static_config
+            foreach (JObject promJob in dynamicConfig["scrape_configs"])
+            {
+                if (promJob["static_configs"].Count() > 1)
+                {
+                    for(int i = promJob["static_configs"].Count(); i > 1; i--)
+                    {
+                        promJob["static_configs"].Last.Remove();
+                    }
+                }
+            }
+            
+            
+            
+    // Convert to YAML & Write to file
+            yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
             Console.WriteLine("YAML STRING:");
-            Console.WriteLine(PrometheusYamlDeserializer.serializeToYaml(jsonConfigString));
+            Console.WriteLine(yamlConfigString);
+            try
+            {
+                await File.WriteAllTextAsync(savedYamlConfigPath, yamlConfigString);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[YAML:FILEWRITE:EXCEPTION] {e}");
+            }
         }
     }
 
