@@ -238,14 +238,14 @@ else
     private string? update_labels { get; set; }
     private List<string> update_targetList { get; } = new List<string>();
     private Dictionary<string, string> update_labelDict { get; } = new Dictionary<string, string>();
+    private List<string> jobNames = new List<string>();
 
-    private readonly string lastConfigPath = "Data/uploaded_prometheus_config.yml";
+    private readonly string lastUploadPath = "Data/uploaded_prometheus_config.yml";
+    private readonly string lastConfigPath = "Data/previous_prometheus_config.yml";
     private readonly string savedYamlConfigPath = "Data/prometheus.yml";
     private readonly string savedJsonConfigPath = "Data/targets_";
 
     private string? delete_jobName { get; set; }
-
-    // File input fields
     private IFileListEntry file;
     private dynamic? dynamicConfig { get; set; }
     private string fileString { get; set; }
@@ -262,12 +262,17 @@ else
         if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
-            fileString = System.IO.File.ReadAllText(lastConfigPath);
+            fileString = await File.ReadAllTextAsync(lastConfigPath);
             convertUploadToJson(fileString);
-            // prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
             Console.WriteLine("Configuration loaded successfully: ");
             Console.WriteLine(jsonConfigString);
         }
+        
+        // Populate update-dropdown panel with jobs
+        // foreach (var job in dynamicConfig["static_configs"])
+        // {
+        //     
+        // }
     }
     
     private void OnInputFileChange(IFileListEntry[] files)
@@ -319,7 +324,7 @@ else
     // Write to YAML file on server
         try
         {
-            await File.WriteAllTextAsync(lastConfigPath, fileString);
+            await File.WriteAllTextAsync(lastUploadPath, fileString);
         }
         catch (Exception e)
         {
@@ -384,6 +389,7 @@ else
             try
             {
                 await File.WriteAllTextAsync(savedYamlConfigPath, yamlConfigString);
+                await File.WriteAllTextAsync(lastConfigPath, yamlConfigString);
             }
             catch (Exception e)
             {
@@ -540,15 +546,5 @@ else
     // Debug
         Console.WriteLine(prometheusConfiguration.ToString());
     }
-
-
     
-    
-
-    
-    
-    
-
-
-
 }
