@@ -5,7 +5,8 @@
 @using System.IO
 @using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
-@using System.Globalization
+
+
 @* @inject HttpClient Http *@
 
 <!-- HTML Section -->
@@ -18,7 +19,7 @@
 
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" aria-current="page" @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
+                <a class="nav-link active" href="#" aria-current="page"  @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Delete Changes</a>
@@ -41,7 +42,7 @@ else
 
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" href="" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
+                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Delete Changes</a>
@@ -212,6 +213,7 @@ else
 
 </div>
 
+
 <!-- Code Section-->
 
 @code {
@@ -225,6 +227,7 @@ else
     private string? add_labels { get; set; }
     private List<string> add_targetList { get; } = new List<string>();
     private List<ConfigurationComponents.Label> add_labelList { get; } = new List<ConfigurationComponents.Label>();
+    private bool showSuccessBadge { get; set; } = false;
 
     private string? update_jobName { get; set; }
     private string? update_scrapeInterval { get; set; }
@@ -304,10 +307,8 @@ else
     // Read file
         try
         {
-            using (var reader = new System.IO.StreamReader(file.Data))
-            {
-                fileString = await reader.ReadToEndAsync();
-            }
+            using var reader = new System.IO.StreamReader(file.Data);
+            fileString = await reader.ReadToEndAsync();
         }
         catch (Exception e)
         {
@@ -343,7 +344,7 @@ else
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"[JSON:FILEWRITE:EXCEPTION] {e}");
+                    Console.WriteLine($"[JSON:FILE.WRITE:EXCEPTION] {e}");
                 }
                 
     // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
@@ -386,40 +387,41 @@ else
             }
             catch (Exception e)
             {
-                Console.WriteLine($"[YAML:FILEWRITE:EXCEPTION] {e}");
+                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
             }
+            
         }
     }
 
     // ------------------------------------------ Methods to manipulate config model
-    public void addScrapingTarget()
+    private void addScrapingTarget()
     {
     // Set defaults where necessary
-        if (add_jobName == null || add_jobName.Equals(""))
+        if (string.IsNullOrEmpty(add_jobName))
         {
             add_jobName = "JobDefault";
         }
-        if (add_scrapeInterval == null || add_scrapeInterval.Equals(""))
+        if (string.IsNullOrEmpty(add_scrapeInterval))
         {
             add_scrapeInterval = "10s";
         }
-        if (add_scrapeTimeout == null || add_scrapeTimeout.Equals(""))
+        if (string.IsNullOrEmpty(add_scrapeTimeout))
         {
             add_scrapeTimeout = "5s";
         }
-        if (add_metricsPath == null || add_metricsPath.Equals(""))
+        if (string.IsNullOrEmpty(add_metricsPath))
         {
             add_metricsPath = "/metrics";
         }
-        if (add_scheme == null || add_scheme.Equals(""))
+        if (string.IsNullOrEmpty(add_scheme))
         {
             add_scheme = "https";
         }
-        if (add_targets == null || add_targets.Equals(""))
+        if (string.IsNullOrEmpty(add_targets))
         {
             add_targets = "192.168.0.1";
         }
-        if (add_labels == null || add_labels.Equals(""))
+        if (string.IsNullOrEmpty(add_labels))
         {
             add_labels = "label_1:value_1";
         }
@@ -435,32 +437,17 @@ else
             add_labelList.Add(label);
         }
 
-    // Create new ProemtheusJob
+    // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
             add_metricsPath, add_scheme, add_targetList, add_labelList);
-
-
-    // Debug
-        Console.WriteLine(add_jobName);
-        Console.WriteLine(add_scrapeInterval);
-        Console.WriteLine(add_scrapeTimeout);
-        Console.WriteLine(add_metricsPath);
-        Console.WriteLine(add_scheme);
-        Console.WriteLine(add_targetList.ElementAt(0));
-        Console.WriteLine(add_labelList);
-
-    // JobObj Debug
-        Console.WriteLine(prometheusJob.JobName);
-        Console.WriteLine(prometheusJob.Scrape_Interval);
-
-    // API Debug
-    // Console.WriteLine(config.scrape_configs[0].job_name);
-
-    // Deserialize Debug
-    //readYamlConfig();
+        
+        // Add to existing model
+        dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
+        
+        Console.WriteLine("Scrape Config Added");
     }
 
-    public void updateScrapingTarget()
+    private void updateScrapingTarget()
     {
     // Set defaults where necessary
         if (update_jobName == null || update_jobName.Equals(""))
@@ -511,11 +498,11 @@ else
         Console.WriteLine(update_labelDict[splitLabels[0]]);
     }
 
-    public void removeScrapingTarget()
+    private void removeScrapingTarget()
     {
     }
 
-    public async void uploadConfiguration()
+    private async void uploadConfiguration()
     {
     // Read files
         try

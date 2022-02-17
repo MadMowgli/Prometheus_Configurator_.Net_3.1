@@ -25,6 +25,15 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             Scheme = scheme;
             Targets = targets;
             Labels = labels;
+            
+            // Create static configs object out of information given
+            Dictionary<string, string> labelDict = new Dictionary<string, string>();
+            foreach (ConfigurationComponents.Label label in labels)
+            {
+                labelDict[label.key] = label.value;
+            }
+            var staticConfigs = new ConfigurationComponents.Static_Configs(targets, labelDict);
+            this.Static_Configs.Add(staticConfigs);
         }
 
         // Properties
