@@ -3,6 +3,7 @@
 @using YamlDotNet.Serialization
 @using Newtonsoft.Json
 @using System.IO
+@using Microsoft.Extensions.Options
 @using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
 
@@ -77,27 +78,27 @@ else
                     <div class="card-body border border-info">
                         <div class="input-group needs-validation input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Job Name</span>
-                            <input type="text" class="form-control" @bind="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="basic-addon1" required/>
+                            <input type="text" class="form-control" @bind-value="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="basic-addon1" required/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Targets</span>
-                            <input type="text" class="form-control" @bind="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Labels</span>
-                            <input type="text" class="form-control" @bind="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
-                            <input type="text" class="form-control" @bind="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
-                            <input type="text" class="form-control" @bind="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Metrics Path</span>
-                            <input type="text" class="form-control" @bind="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
@@ -122,34 +123,36 @@ else
                     <div class="card-body border border-warning">
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                            <select class="form-select" id="inputGroupSelect01">
-                                <option value="https">placeholder</option>
-                                <option value="http">http</option>
+                            <select class="form-select" @onchange="@updateUpdateFields" id="inputGroupSelect01">
+                                @foreach (string jobName in jobNames)
+                                {
+                                    <option value="@jobName">@jobName</option>
+                                }
                             </select>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Targets</span>
-                            <input type="text" class="form-control" @bind="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Labels</span>
-                            <input type="text" class="form-control" @bind="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
-                            <input type="text" class="form-control" @bind="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
-                            <input type="text" class="form-control" @bind="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="basic-addon1">Metrics Path</span>
-                            <input type="text" class="form-control" @bind="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                            <input type="text" class="form-control" @bind-value="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
                         </div>
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
-                            <select class="form-select" id="inputGroupSelect01">
+                            <select @bind="@update_scheme" class="form-select" id="inputGroupSelect01">
                                 <option value="https">https</option>
                                 <option value="http">http</option>
                             </select>
@@ -171,8 +174,10 @@ else
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
                             <select class="form-select" id="inputGroupSelect01">
-                                <option value="https">placeholder</option>
-                                <option value="http">http</option>
+                                @foreach (string jobName in jobNames)
+                                {
+                                    <option value="@jobName">@jobName</option>
+                                }
                             </select>
                         </div>
                     </div>
@@ -259,20 +264,22 @@ else
     protected override async Task OnInitializedAsync()
     {
     // Load last config
-        if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
+        if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
-            fileString = await File.ReadAllTextAsync(lastConfigPath);
+            fileString = await File.ReadAllTextAsync(lastUploadPath);
             convertUploadToJson(fileString);
             Console.WriteLine("Configuration loaded successfully: ");
             Console.WriteLine(jsonConfigString);
+            
+    // Populate update-dropdown panel with jobs
+            foreach (var job in dynamicConfig["scrape_configs"])
+            {
+                jobNames.Add(job["job_name"].ToString()); 
+            }
         }
         
-        // Populate update-dropdown panel with jobs
-        // foreach (var job in dynamicConfig["static_configs"])
-        // {
-        //     
-        // }
+
     }
     
     private void OnInputFileChange(IFileListEntry[] files)
@@ -399,6 +406,76 @@ else
         }
     }
 
+    private void updateUpdateFields(ChangeEventArgs eventArgs)
+    {
+        string selectedString = eventArgs.Value.ToString();
+        foreach (var job in dynamicConfig["scrape_configs"])
+        {
+            if (job["job_name"] == selectedString)
+            {
+                update_jobName = selectedString;
+                update_scrapeInterval = job["scrape_interval"];
+                update_scrapeTimeout = job["scrape_timeout"];
+                update_scheme = job["scheme"];
+                
+                // Read the rest of the information from the separate .JSON file
+                if (File.Exists(savedJsonConfigPath + selectedString + ".json"))
+                {
+                    try
+                    {
+                        dynamic static_configs = JsonConvert.DeserializeObject(File.ReadAllText(savedJsonConfigPath + selectedString + ".json"));
+                        foreach (var option in static_configs)
+                        {
+                            if (option.ContainsKey("targets"))
+                            {
+                                string targetsString = option["targets"].ToString();
+                                targetsString = targetsString.Replace("[", "")
+                                    .Replace("]", "")
+                                    .Replace("\"", "")
+                                    .Replace(" ", "")
+                                    .Replace(",", ", ");
+                                update_targets = targetsString;
+                            }
+                            if (option.ContainsKey("labels"))
+                            {
+                                string labelString = option["labels"].ToString();
+                                labelString = labelString.Replace("{", "")
+                                    .Replace("}", "")
+                                    .Replace("\"", "")
+                                    .Replace(" ", "")
+                                    .Replace(",", ", ");
+                                update_labels = labelString;
+                            }
+
+                            if (option.ContainsKey("scheme"))
+                            {
+                                update_scheme = option["scheme"];
+                            }
+                            else
+                            {
+                                update_scheme = "http";
+                            }
+
+                            if (option.ContainsKey("metrics_path"))
+                            {
+                                update_metricsPath = option["metrics_path"];
+                            }
+                            else
+                            {
+                                update_metricsPath = "/metrics";
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"[JSON:CONVERT:EXCEPTION] {e}");
+                    }
+                }
+            }
+        }
+    }
+
+    
     // ------------------------------------------ Methods to manipulate config model
     private void addScrapingTarget()
     {
