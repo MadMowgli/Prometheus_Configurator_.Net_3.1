@@ -136,7 +136,6 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             // Properties
             public string key { get; set; }
             public string value { get; set; }
-            
         }
 
         [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
@@ -213,11 +212,10 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             // Properties
             public List<string> targets { get; set; } = new List<string>();
             public Dictionary<string, string> labels { get; set; } = new Dictionary<string, string>();
-            
+
             // Constructor
             public Static_Configs()
             {
-                
             }
 
             public Static_Configs(List<string> targets, Dictionary<string, string> labels)

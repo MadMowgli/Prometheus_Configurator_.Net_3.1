@@ -7,7 +7,7 @@ function BlazorDownloadFile(filename, contentType, content) {
     const data = base64DecToArr(content);
 
     // Create the URL
-    const file = new File([data], filename, { type: contentType });
+    const file = new File([data], filename, {type: contentType});
     const exportUrl = URL.createObjectURL(file);
 
     // Create the <a> element and click on it
