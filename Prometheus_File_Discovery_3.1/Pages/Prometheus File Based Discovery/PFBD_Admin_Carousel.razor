@@ -173,7 +173,7 @@ else
                     <div class="card-body border border-secondary">
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                            <select class="form-select" id="inputGroupSelect01">
+                            <select class="form-select" @onchange="@updateDeleteField" id="inputGroupSelect01">
                                 @foreach (string jobName in jobNames)
                                 {
                                     <option value="@jobName">@jobName</option>
@@ -277,11 +277,7 @@ else
             currentDynamicConfig = dynamicConfig;
             
     // Populate update-dropdown panel with jobs
-            jobNames.Clear();
-            foreach (var job in dynamicConfig["scrape_configs"])
-            {
-                jobNames.Add(job["job_name"].ToString()); 
-            }
+            this.updateDropdowns();
         }
         
         else if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
@@ -295,11 +291,8 @@ else
             currentDynamicConfig = clone;
 
     // Populate update-dropdown panel with jobs
-            jobNames.Clear();
-            foreach (var job in dynamicConfig["scrape_configs"])
-            {
-                jobNames.Add(job["job_name"].ToString()); 
-            }
+            this.updateDropdowns();
+            
         }
         
 
@@ -450,6 +443,7 @@ else
         }
         
         Console.WriteLine("Configuration saved");
+        this.updateDropdowns();
     }
 
     private void updateUpdateFields(ChangeEventArgs eventArgs)
@@ -521,6 +515,11 @@ else
         }
     }
 
+    private void updateDeleteField(ChangeEventArgs eventArgs)
+    {
+        delete_jobName = eventArgs.Value.ToString();
+    }
+    
     
     // ------------------------------------------ Methods to manipulate config model
     private void addScrapingTarget()
@@ -556,7 +555,7 @@ else
         }
 
     // Fill up collections
-        add_targetList.AddRange(add_targets.Split(","));
+        add_targetList.AddRange(add_targets.Split(", "));
         var labels = add_labels.Split(", ");
         var splitLabels = from label in labels select label.Split(":");
         for (var index = 0; index < splitLabels.Count(); index += 1)
@@ -575,6 +574,8 @@ else
         dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
         
         Console.WriteLine("Scrape Config Added");
+        this.updateDropdowns();
+        this.saveConfig();
     }
 
     private void updateScrapingTarget()
@@ -634,10 +635,34 @@ else
         }
         dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
         Console.WriteLine("Updated job: " + update_jobName);
+        this.updateDropdowns();
+        this.saveConfig();
     }
 
     private void removeScrapingTarget()
     {
+        for (int i = 0; i <= dynamicConfig["scrape_configs"].Count; i++)
+        {
+            if (dynamicConfig["scrape_configs"][i]["job_name"] != delete_jobName) continue;
+            dynamicConfig["scrape_configs"][i].Remove();
+            break;
+        }
+        if (File.Exists(savedJsonConfigPath + delete_jobName + ".json"))
+        {
+            try
+            {
+                File.Delete(savedJsonConfigPath + delete_jobName + ".json");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[FILE:DELETION:EXCEPTION] {e}");
+            }
+            
+        }
+        Console.WriteLine("Job \"" + delete_jobName + "\" removed.");
+        this.updateDropdowns();
+        this.saveConfig();
+
     }
 
     private async void uploadConfiguration()
@@ -681,6 +706,16 @@ else
         await this.saveConfig();
         this.StateHasChanged();
         
+    }
+
+    private void updateDropdowns()
+    {
+        jobNames.Clear();
+        foreach (var job in dynamicConfig["scrape_configs"])
+        {
+            jobNames.Add(job["job_name"].ToString()); 
+        }
+        this.StateHasChanged();
     }
     
 }
