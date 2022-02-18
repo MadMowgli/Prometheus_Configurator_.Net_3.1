@@ -3,6 +3,7 @@
 @using YamlDotNet.Serialization
 @using Newtonsoft.Json
 @using System.IO
+@using System.IO.Compression
 @using Microsoft.Extensions.Options
 @using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
@@ -20,15 +21,17 @@
 
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" href="#" aria-current="page"  @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
+                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Delete Changes</a>
+                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
             </li>
             <li class="nav-item">
                 <sup>
                     <h6 class="float-end">
-                        <p> <span class="badge bg-warning text-dark" style="margin-top:11px;">No previous config found</span></p>
+                        <p>
+                            <span class="badge bg-warning text-dark" style="margin-top:11px;">No previous config found</span>
+                        </p>
                     </h6>
                 </sup>
             </li>
@@ -46,10 +49,12 @@ else
                 <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Delete Changes</a>
+                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
             </li>
             <li class="nav-item">
-                <p> <span class="badge bg-success text-white" style="margin-top:11px;">Config loaded</span></p>
+                <p>
+                    <span class="badge bg-success text-white" style="margin-top:11px;">Config loaded</span>
+                </p>
             </li>
         </ul>
     </div>
@@ -232,7 +237,6 @@ else
     private string? add_labels { get; set; }
     private List<string> add_targetList { get; } = new List<string>();
     private List<ConfigurationComponents.Label> add_labelList { get; } = new List<ConfigurationComponents.Label>();
-    private bool showSuccessBadge { get; set; } = false;
 
     private string? update_jobName { get; set; }
     private string? update_scrapeInterval { get; set; }
@@ -250,6 +254,7 @@ else
     private readonly string savedYamlConfigPath = "Data/prometheus.yml";
     private readonly string savedClassicYamlConfigPath = "Data/prometheus.yml";
     private readonly string savedJsonConfigPath = "Data/targets_";
+    private readonly string zipPath = "Data/prometheus_config.zip";
 
     private string? delete_jobName { get; set; }
     private IFileListEntry file;
@@ -258,10 +263,9 @@ else
     private string fileString { get; set; }
     private string jsonConfigString { get; set; }
     private string yamlConfigString { get; set; }
-    private List<dynamic> changes = new List<dynamic>();
-
+    private List<dynamic> changes = new List<dynamic>(); // This may be obsolete
     private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
-    private string lastPrometheusConfigurationYAML { get; set; }
+
 
     // ------------------------------------------  Methods to load & save data
     protected override async Task OnInitializedAsync()
@@ -275,11 +279,11 @@ else
             Console.WriteLine("Configuration loaded successfully: ");
             changes.Add(dynamicConfig);
             currentDynamicConfig = dynamicConfig;
-            
+
     // Populate update-dropdown panel with jobs
             this.updateDropdowns();
         }
-        
+
         else if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
@@ -292,18 +296,15 @@ else
 
     // Populate update-dropdown panel with jobs
             this.updateDropdowns();
-            
         }
-        
-
     }
-    
+
     private void OnInputFileChange(IFileListEntry[] files)
     {
         Console.WriteLine("File upload detected");
         file = files.FirstOrDefault();
     }
-    
+
     private void convertUploadToJson(string fileString)
     {
     // Convert file input to YAML object
@@ -327,7 +328,7 @@ else
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
     }
-    
+
     private async Task readUpload()
     {
     // Read file
@@ -352,7 +353,7 @@ else
             Console.WriteLine($"[FILE:WRITE:EXCEPTION] {e}");
         }
     }
-    
+
     private async Task saveConfig()
     {
         if (!string.IsNullOrEmpty(fileString))
@@ -367,7 +368,7 @@ else
             {
                 Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
             }
-            
+
             var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
 
     // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
@@ -384,7 +385,7 @@ else
                 {
                     Console.WriteLine($"[JSON:FILE.WRITE:EXCEPTION] {e}");
                 }
-                
+
     // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
                 foreach (JObject staticConfigObj in staticConfigs)
                 {
@@ -396,37 +397,35 @@ else
                     {
                         staticConfigObj["targets"].Parent.Remove();
                     }
-                    
+
                     staticConfigObj["file_sd_configs"] = new JArray(new JObject(new JProperty("files", "targets_" + jobName + ".json")));
                 }
             }
-            
+
     // Clean up duplicate entries
             foreach (JObject promJob in clone["scrape_configs"])
             {
-                // ... static configs duplicates
+    // ... static configs duplicates
                 if (promJob["static_configs"].Count() > 1)
                 {
-                    for(int i = promJob["static_configs"].Count(); i > 1; i--)
+                    for (int i = promJob["static_configs"].Count(); i > 1; i--)
                     {
                         promJob["static_configs"].Last.Remove();
                     }
                 }
-                
+
     // TODO: Clean up dupilcate entries in the targets-array
-                // .. duplicates in targets-array
-
-
+    // .. duplicates in targets-array
             }
-            
-            
+
+
     // Update drop-downs
             jobNames.Clear();
             foreach (var job in clone["scrape_configs"])
             {
-                jobNames.Add(job["job_name"].ToString()); 
+                jobNames.Add(job["job_name"].ToString());
             }
-            
+
     // Convert to YAML & Write to file
             var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
             var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
@@ -439,9 +438,8 @@ else
             {
                 Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
             }
-            
         }
-        
+
         Console.WriteLine("Configuration saved");
         this.updateDropdowns();
     }
@@ -457,8 +455,8 @@ else
                 update_scrapeInterval = job["scrape_interval"];
                 update_scrapeTimeout = job["scrape_timeout"];
                 update_scheme = job["scheme"];
-                
-                // Read the rest of the information from the separate .JSON file
+
+    // Read the rest of the information from the separate .JSON file
                 if (File.Exists(savedJsonConfigPath + selectedString + ".json"))
                 {
                     try
@@ -519,8 +517,42 @@ else
     {
         delete_jobName = eventArgs.Value.ToString();
     }
-    
-    
+
+    private void downloadFiles()
+    {
+        this.createZip();
+    }
+
+    private void createZip()
+    {
+        using (var memoryStream = new MemoryStream())
+        {
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+            {
+                foreach (var fileEntry in Directory.GetFiles("Data"))
+                {
+                    if (fileEntry.Contains(".json") || fileEntry.Contains(".yml"))
+                    {
+                        var archiveEntry = archive.CreateEntry(fileEntry.Replace("Data\\", ""));
+
+                        using (var entryStream = archiveEntry.Open())
+                        using (var streamWriter = new StreamWriter(entryStream))
+                        {
+                            streamWriter.Write(File.ReadAllText(fileEntry));
+                        }
+                    }
+                    
+                }
+            }
+            using (var fileStream = new FileStream(zipPath, FileMode.Create))
+            {
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                memoryStream.CopyTo(fileStream);
+            }
+        }
+    }
+
+
     // ------------------------------------------ Methods to manipulate config model
     private void addScrapingTarget()
     {
@@ -569,10 +601,10 @@ else
     // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
             add_metricsPath, add_scheme, add_targetList, add_labelList);
-        
-        // Add to existing model
+
+    // Add to existing model
         dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
-        
+
         Console.WriteLine("Scrape Config Added");
         this.updateDropdowns();
         this.saveConfig();
@@ -625,7 +657,7 @@ else
     // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(update_jobName, update_scrapeInterval, update_scrapeTimeout,
             update_metricsPath, update_scheme, update_targetList, update_LabelList);
-        
+
     // Update existing model
         for (int i = 0; i <= dynamicConfig["scrape_configs"].Count; i++)
         {
@@ -657,12 +689,10 @@ else
             {
                 Console.WriteLine($"[FILE:DELETION:EXCEPTION] {e}");
             }
-            
         }
         Console.WriteLine("Job \"" + delete_jobName + "\" removed.");
         this.updateDropdowns();
         this.saveConfig();
-
     }
 
     private async void uploadConfiguration()
@@ -670,7 +700,7 @@ else
     // Read files
         try
         {
-            // We're creating a copy of the upload while reading
+    // We're creating a copy of the upload while reading
             await readUpload();
         }
         catch (Exception e)
@@ -682,7 +712,7 @@ else
     // Convert to JSON
         try
         {
-            // Here we define the dynamicConfig variable
+    // Here we define the dynamicConfig variable
             convertUploadToJson(fileString);
         }
         catch (Exception e)
@@ -701,11 +731,10 @@ else
         {
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
-        
+
     // Refresh UI & save config
         await this.saveConfig();
         this.StateHasChanged();
-        
     }
 
     private void updateDropdowns()
@@ -713,9 +742,9 @@ else
         jobNames.Clear();
         foreach (var job in dynamicConfig["scrape_configs"])
         {
-            jobNames.Add(job["job_name"].ToString()); 
+            jobNames.Add(job["job_name"].ToString());
         }
         this.StateHasChanged();
     }
-    
+
 }
