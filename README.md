@@ -1,7 +1,7 @@
 ﻿# Prometheus Configurator (.NET Core 3.1)
 ![Prometheus_Configurator.png](Resources/Screenshots/UI_Add.png)
-> The Prometheus Configurator is a Blazor Plugin you can use to configure the Prometheus YAML config file with ease.
-> The plugin consists of some logic mostly embedded in a razor component, which offers an UI to create simple CRUD operations on the Prometheus config file.
+The Prometheus Configurator is a Blazor Plugin you can use to configure the Prometheus YAML config file with ease.
+The plugin consists of some logic mostly embedded in a razor component, which offers an UI to create simple CRUD operations on the Prometheus config file.
 
 
 ## How To Use
