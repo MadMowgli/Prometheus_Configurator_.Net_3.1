@@ -242,7 +242,7 @@ else
     private string? update_targets { get; set; }
     private string? update_labels { get; set; }
     private List<string> update_targetList { get; } = new List<string>();
-    private List<ConfigurationComponents.Label> update_LabelLlist { get; } = new List<ConfigurationComponents.Label>();
+    private List<ConfigurationComponents.Label> update_LabelList { get; } = new List<ConfigurationComponents.Label>();
     private List<string> jobNames = new List<string>();
 
     private readonly string lastUploadPath = "Data/uploaded_prometheus_config.yml";
@@ -611,18 +611,19 @@ else
 
     // Fill up collections
         update_targetList.AddRange(update_targets.Split(","));
-        var splitLabels = update_labels.Split(":");
-        for (var index = 0; index < splitLabels.Length; index += 2)
+        var labels = update_labels.Split(", ");
+        var splitLabels = from label in labels select label.Split(":");
+        for (var index = 0; index < splitLabels.Count(); index += 1)
         {
-            var key = splitLabels[index];
-            var value = splitLabels[index + 1];
+            var key = splitLabels.ElementAt(index)[0];
+            var value = splitLabels.ElementAt(index)[1];
             var label = new ConfigurationComponents.Label(key, value);
-            update_LabelLlist.Add(label);
+            update_LabelList.Add(label);
         }
 
     // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(update_jobName, update_scrapeInterval, update_scrapeTimeout,
-            update_metricsPath, update_scheme, update_targetList, update_LabelLlist);
+            update_metricsPath, update_scheme, update_targetList, update_LabelList);
         
     // Update existing model
         for (int i = 0; i <= dynamicConfig["scrape_configs"].Count; i++)
@@ -631,10 +632,7 @@ else
             dynamicConfig["scrape_configs"][i].Remove();
             break;
         }
-        var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
-        clone["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
-        changes.Add(clone);
-        currentDynamicConfig = clone;
+        dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
         Console.WriteLine("Updated job: " + update_jobName);
     }
 
