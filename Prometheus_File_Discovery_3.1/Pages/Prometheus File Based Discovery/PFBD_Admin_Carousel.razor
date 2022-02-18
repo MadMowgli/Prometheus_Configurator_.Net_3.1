@@ -248,14 +248,17 @@ else
     private readonly string lastUploadPath = "Data/uploaded_prometheus_config.yml";
     private readonly string lastConfigPath = "Data/previous_prometheus_config.yml";
     private readonly string savedYamlConfigPath = "Data/prometheus.yml";
+    private readonly string savedClassicYamlConfigPath = "Data/prometheus.yml";
     private readonly string savedJsonConfigPath = "Data/targets_";
 
     private string? delete_jobName { get; set; }
     private IFileListEntry file;
     private dynamic? dynamicConfig { get; set; }
+    private dynamic? currentDynamicConfig { get; set; }
     private string fileString { get; set; }
     private string jsonConfigString { get; set; }
     private string yamlConfigString { get; set; }
+    private List<dynamic> changes = new List<dynamic>();
 
     private PrometheusConfiguration prometheusConfiguration { get; set; } = new PrometheusConfiguration();
     private string lastPrometheusConfigurationYAML { get; set; }
@@ -264,15 +267,35 @@ else
     protected override async Task OnInitializedAsync()
     {
     // Load last config
-        if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
+        if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
+        {
+            Console.WriteLine("Uploaded Configuration detected...");
+            fileString = await File.ReadAllTextAsync(lastConfigPath);
+            convertUploadToJson(fileString);
+            Console.WriteLine("Configuration loaded successfully: ");
+            changes.Add(dynamicConfig);
+            currentDynamicConfig = dynamicConfig;
+            
+    // Populate update-dropdown panel with jobs
+            jobNames.Clear();
+            foreach (var job in dynamicConfig["scrape_configs"])
+            {
+                jobNames.Add(job["job_name"].ToString()); 
+            }
+        }
+        
+        else if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
             fileString = await File.ReadAllTextAsync(lastUploadPath);
             convertUploadToJson(fileString);
             Console.WriteLine("Configuration loaded successfully: ");
-            Console.WriteLine(jsonConfigString);
-            
+            changes.Add(dynamicConfig);
+            var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
+            currentDynamicConfig = clone;
+
     // Populate update-dropdown panel with jobs
+            jobNames.Clear();
             foreach (var job in dynamicConfig["scrape_configs"])
             {
                 jobNames.Add(job["job_name"].ToString()); 
@@ -305,8 +328,6 @@ else
     // Create dynamic class out of JSON object
             dynamicConfig = JsonConvert.DeserializeObject(stringWriter.ToString());
             jsonConfigString = dynamicConfig.ToString();
-            Console.WriteLine("JSON CONFIG STRING: ----------------------------------");
-            Console.WriteLine(jsonConfigString);
         }
         catch (Exception e)
         {
@@ -328,7 +349,7 @@ else
         }
 
 
-    // Write to YAML file on server
+    // Create a copy of the upload on the server
         try
         {
             await File.WriteAllTextAsync(lastUploadPath, fileString);
@@ -343,12 +364,24 @@ else
     {
         if (!string.IsNullOrEmpty(fileString))
         {
-            
-    // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
-            for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < dynamicConfig["scrape_configs"].Count; scrapeConfigsIndex++)
+    // Save a "classic" prometheus.yml file, without the addition of file_sd_configs
+            yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(currentDynamicConfig.ToString());
+            try
             {
-                string jobName = dynamicConfig["scrape_configs"][scrapeConfigsIndex]["job_name"];
-                JArray staticConfigs = dynamicConfig["scrape_configs"][scrapeConfigsIndex]["static_configs"];
+                await File.WriteAllTextAsync(lastConfigPath, yamlConfigString);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
+            }
+            
+            var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
+
+    // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
+            for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < clone["scrape_configs"].Count; scrapeConfigsIndex++)
+            {
+                string jobName = clone["scrape_configs"][scrapeConfigsIndex]["job_name"];
+                JArray staticConfigs = clone["scrape_configs"][scrapeConfigsIndex]["static_configs"];
 
                 try
                 {
@@ -375,9 +408,10 @@ else
                 }
             }
             
-    // Clean up duplicate entries in static_config
-            foreach (JObject promJob in dynamicConfig["scrape_configs"])
+    // Clean up duplicate entries
+            foreach (JObject promJob in clone["scrape_configs"])
             {
+                // ... static configs duplicates
                 if (promJob["static_configs"].Count() > 1)
                 {
                     for(int i = promJob["static_configs"].Count(); i > 1; i--)
@@ -385,18 +419,28 @@ else
                         promJob["static_configs"].Last.Remove();
                     }
                 }
+                
+    // TODO: Clean up dupilcate entries in the targets-array
+                // .. duplicates in targets-array
+
+
             }
             
             
+    // Update drop-downs
+            jobNames.Clear();
+            foreach (var job in clone["scrape_configs"])
+            {
+                jobNames.Add(job["job_name"].ToString()); 
+            }
             
     // Convert to YAML & Write to file
-            yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
-            Console.WriteLine("YAML STRING:");
-            Console.WriteLine(yamlConfigString);
+            var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
+            var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
             try
             {
-                await File.WriteAllTextAsync(savedYamlConfigPath, yamlConfigString);
-                await File.WriteAllTextAsync(lastConfigPath, yamlConfigString);
+                await File.WriteAllTextAsync(savedYamlConfigPath, cloneYamlConfigString);
+                await File.WriteAllTextAsync(lastConfigPath, originalYamlConfigString);
             }
             catch (Exception e)
             {
@@ -404,6 +448,8 @@ else
             }
             
         }
+        
+        Console.WriteLine("Configuration saved");
     }
 
     private void updateUpdateFields(ChangeEventArgs eventArgs)
@@ -511,11 +557,12 @@ else
 
     // Fill up collections
         add_targetList.AddRange(add_targets.Split(","));
-        var splitLabels = add_labels.Split(":");
-        for (var index = 0; index < splitLabels.Length; index += 2)
+        var labels = add_labels.Split(", ");
+        var splitLabels = from label in labels select label.Split(":");
+        for (var index = 0; index < splitLabels.Count(); index += 1)
         {
-            var key = splitLabels[index];
-            var value = splitLabels[index + 1];
+            var key = splitLabels.ElementAt(index)[0];
+            var value = splitLabels.ElementAt(index)[1];
             var label = new ConfigurationComponents.Label(key, value);
             add_labelList.Add(label);
         }
@@ -584,7 +631,10 @@ else
             dynamicConfig["scrape_configs"][i].Remove();
             break;
         }
-        dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
+        var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
+        clone["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
+        changes.Add(clone);
+        currentDynamicConfig = clone;
         Console.WriteLine("Updated job: " + update_jobName);
     }
 
@@ -597,6 +647,7 @@ else
     // Read files
         try
         {
+            // We're creating a copy of the upload while reading
             await readUpload();
         }
         catch (Exception e)
@@ -608,6 +659,7 @@ else
     // Convert to JSON
         try
         {
+            // Here we define the dynamicConfig variable
             convertUploadToJson(fileString);
         }
         catch (Exception e)
@@ -619,16 +671,18 @@ else
     // Convert to .Net object
         try
         {
+            currentDynamicConfig = dynamicConfig;
             prometheusConfiguration = JsonToPrometheusConverter.convertJsonToDotNet(dynamicConfig, prometheusConfiguration);
         }
         catch (Exception e)
         {
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
-
-
-    // Debug
-        Console.WriteLine(prometheusConfiguration.ToString());
+        
+    // Refresh UI & save config
+        await this.saveConfig();
+        this.StateHasChanged();
+        
     }
     
 }
