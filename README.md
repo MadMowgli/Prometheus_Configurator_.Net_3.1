@@ -26,6 +26,8 @@ A few things to notice when implementing this plugin to your already existing Bl
     - `<script src="/js/BlazorDownloadFile.js"></script>`
 - Make sure to adjust namespaces.
 - Add the page to the Shared/NavMenu.razor to make it visible.
+- Add the following line to your _Imports.razor
+  - `@using BlazorInputFile`
 
 ## Dependencies
 - [BlazorInputFile v.0.2.0](https://www.nuget.org/packages/BlazorInputFile)
