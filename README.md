@@ -17,3 +17,20 @@ creates an in-memory model, which you can manipulate on. You can add, update or 
 **Every action you take (Adding, Updating or Removing a scraping target) is saved immediately as you click the according button.** However, some people may want to do so manually, that's
 why there is a save-button.
 
+## How to implement
+A few things to notice when implementing this plugin to your already existing Blazor solution:
+- **Changes on the _Host.cshtml file**
+  - I've added 3 script tags at the end of the _Host.cshtml file:
+    - `<script src="js/bootstrap.bundle.js"></script>`
+    - `<script src="_content/BlazorInputFile/inputfile.js"></script>`
+    - `<script src="/js/BlazorDownloadFile.js"></script>`
+
+## Dependencies
+- [BlazorInputFile v.0.2.0](https://www.nuget.org/packages/BlazorInputFile)
+- [Newtonsoft.Json v.13.0.1](https://www.nuget.org/packages/Newtonsoft.Json)
+- [Tewr.Blazor.FileReader v.3.3.1.21360](https://www.nuget.org/packages/Tewr.Blazor.FileReader)
+- [YamlDotNet v.11.2.1](https://www.nuget.org/packages/YamlDotNet)
+- [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/) using [self compiled sass files](https://www.youtube.com/watch?v=9b4hYVNCFK4)
+
+
+

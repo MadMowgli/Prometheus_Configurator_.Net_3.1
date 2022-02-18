@@ -6,46 +6,50 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BlazorInputFile" Version="0.2.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
-        <PackageReference Include="Tewr.Blazor.FileReader" Version="3.3.1.21360"/>
-        <PackageReference Include="YamlDotNet" Version="11.2.1"/>
+        <PackageReference Include="BlazorInputFile" Version="0.2.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Tewr.Blazor.FileReader" Version="3.3.1.21360" />
+        <PackageReference Include="YamlDotNet" Version="11.2.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\PFBD_Admin.razor"/>
-        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\PFBD_Admin_Carousel.razor"/>
-        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\Data\Example\PrometheusExampleConfiguration.json"/>
-        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\Data\Example\SerializedYamlConfig.json"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\FONT-LICENSE"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.eot"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.otf"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.svg"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.ttf"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.woff"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\ICON-LICENSE"/>
-        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\README.md"/>
+        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\PFBD_Admin.razor" />
+        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\PFBD_Admin_Carousel.razor" />
+        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\Data\Example\PrometheusExampleConfiguration.json" />
+        <_ContentIncludedByDefault Remove="Pages\Prometheus File Based Discovery\Data\Example\SerializedYamlConfig.json" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\FONT-LICENSE" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\css\open-iconic-bootstrap.min.css" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.eot" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.otf" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.ttf" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\font\fonts\open-iconic.woff" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\ICON-LICENSE" />
+        <_ContentIncludedByDefault Remove="wwwroot\css\open-iconic\README.md" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="obj\**"/>
+        <Compile Remove="obj\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Remove="obj\**"/>
+        <EmbeddedResource Remove="obj\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="obj\**"/>
-        <None Remove="Prometheus_File_Discovery_3.1.csproj.DotSettings"/>
-        <None Include="wwwroot\js\BlazorDownloadFile.js"/>
+        <None Remove="obj\**" />
+        <None Remove="Prometheus_File_Discovery_3.1.csproj.DotSettings" />
+        <None Include="wwwroot\js\BlazorDownloadFile.js" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Remove="obj\**"/>
-        <Content Remove="appsettings.json"/>
-        <Content Remove="appsettings.Development.json"/>
+        <Content Remove="obj\**" />
+        <Content Remove="appsettings.json" />
+        <Content Remove="appsettings.Development.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Pages\Prometheus File Based Discovery\Data\Example" />
     </ItemGroup>
 
 </Project>
