@@ -4,9 +4,9 @@
 @using Newtonsoft.Json
 @using System.IO
 @using System.IO.Compression
-@using Microsoft.Extensions.Options
 @using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
+@inject IJSRuntime JS
 
 
 @* @inject HttpClient Http *@
@@ -521,6 +521,7 @@ else
     private void downloadFiles()
     {
         this.createZip();
+        this.downloadZip();
     }
 
     private void createZip()
@@ -550,6 +551,12 @@ else
                 memoryStream.CopyTo(fileStream);
             }
         }
+    }
+
+    private async Task downloadZip()
+    {
+        var fileDownload = await File.ReadAllBytesAsync(zipPath);
+        await JS.InvokeVoidAsync("BlazorDownloadFile", "prometheus_config.zip", "application/zip", fileDownload);
     }
 
 

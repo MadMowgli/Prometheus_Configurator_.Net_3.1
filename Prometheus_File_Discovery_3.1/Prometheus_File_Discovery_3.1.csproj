@@ -39,6 +39,7 @@
     <ItemGroup>
         <None Remove="obj\**" />
         <None Remove="Prometheus_File_Discovery_3.1.csproj.DotSettings" />
+        <None Include="wwwroot\js\BlazorDownloadFile.js" />
     </ItemGroup>
 
     <ItemGroup>
