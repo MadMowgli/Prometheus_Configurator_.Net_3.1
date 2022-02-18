@@ -1,4 +1,6 @@
-﻿// Use it for .NET Core 3.1 or .NET 5
+﻿// PROPS: https://www.meziantou.net/generating-and-downloading-a-file-in-a-blazor-webassembly-application.htm
+
+// Use it for .NET Core 3.1 or .NET 5
 function BlazorDownloadFile(filename, contentType, content) {
     // Blazor marshall byte[] to a base64 string, so we first need to convert
     // the string (content) to a Uint8Array to create the File
