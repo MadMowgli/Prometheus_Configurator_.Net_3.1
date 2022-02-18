@@ -24,6 +24,7 @@ A few things to notice when implementing this plugin to your already existing Bl
     - `<script src="js/bootstrap.bundle.js"></script>`
     - `<script src="_content/BlazorInputFile/inputfile.js"></script>`
     - `<script src="/js/BlazorDownloadFile.js"></script>`
+- Make sure to adjust namespaces.
 
 ## Dependencies
 - [BlazorInputFile v.0.2.0](https://www.nuget.org/packages/BlazorInputFile)
