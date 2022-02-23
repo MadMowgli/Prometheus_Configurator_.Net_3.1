@@ -36,5 +36,11 @@ A few things to notice when implementing this plugin to your already existing Bl
 - [YamlDotNet v.11.2.1](https://www.nuget.org/packages/YamlDotNet)
 - [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/) using [self compiled sass files](https://www.youtube.com/watch?v=9b4hYVNCFK4)
 
-
+## Technical Background
+![Workflow](Resources/Screenshots/workflow_2.png)
+On file upload, the application creates an in-memory JSON-model of the YML-content. The big advantage that emerges from converting
+the content of the YML file into an in-memory JSON object is the ease of access to manipulation. JSON is, in contrast to YML, widely supported
+in many programming languages such as C#. All changes from the user coming from the UI are performed on this model. When the user saves, the application
+creates an updated prometheus.yml, as well as a previous_prometheus_config.yml. Whenever the page is refreshed, the application checks if a previous_prometheus_config.yml
+is existing and loads this model into memory if so. This way, the application keeps track of the newest model at all times.
 
