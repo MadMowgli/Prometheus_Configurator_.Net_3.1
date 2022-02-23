@@ -423,96 +423,6 @@ else
         }
     }
 
-    private async Task saveConfigWorking()
-    {
-        if (!string.IsNullOrEmpty(fileString))
-        {
-    // Save a "classic" prometheus.yml file, without the addition of file_sd_configs
-            yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(currentDynamicConfig.ToString());
-            try
-            {
-                await File.WriteAllTextAsync(lastConfigPath, yamlConfigString);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
-            }
-
-            var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
-
-    // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
-            for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < clone["scrape_configs"].Count; scrapeConfigsIndex++)
-            {
-                string jobName = clone["scrape_configs"][scrapeConfigsIndex]["job_name"];
-                JArray staticConfigs = clone["scrape_configs"][scrapeConfigsIndex]["static_configs"];
-
-                try
-                {
-                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigs.ToString());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"[JSON:FILE.WRITE:EXCEPTION] {e}");
-                }
-
-    // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
-                foreach (JObject staticConfigObj in staticConfigs)
-                {
-                    if (staticConfigObj.Property("labels") != null)
-                    {
-                        staticConfigObj["labels"].Parent.Remove();
-                    }
-                    if (staticConfigObj.Property("targets") != null)
-                    {
-                        staticConfigObj["targets"].Parent.Remove();
-                    }
-
-                    staticConfigObj["file_sd_configs"] = new JArray(new JObject(new JProperty("files", "targets_" + jobName + ".json")));
-                }
-            }
-
-    // Clean up duplicate entries
-            foreach (JObject promJob in clone["scrape_configs"])
-            {
-    // ... static configs duplicates
-                if (promJob["static_configs"].Count() > 1)
-                {
-                    for (int i = promJob["static_configs"].Count(); i > 1; i--)
-                    {
-                        promJob["static_configs"].Last.Remove();
-                    }
-                }
-
-    // TODO: Clean up dupilcate entries in the targets-array
-    // .. duplicates in targets-array
-            }
-
-
-    // Update drop-downs
-            jobNames.Clear();
-            foreach (var job in clone["scrape_configs"])
-            {
-                jobNames.Add(job["job_name"].ToString());
-            }
-
-    // Convert to YAML & Write to file
-            var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
-            var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
-            try
-            {
-                await File.WriteAllTextAsync(savedYamlConfigPath, cloneYamlConfigString);
-                await File.WriteAllTextAsync(lastConfigPath, originalYamlConfigString);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
-            }
-        }
-
-        Console.WriteLine("Configuration saved");
-        this.updateDropdowns();
-    }
-    
     private async Task saveConfig()
     {
         if (!string.IsNullOrEmpty(fileString))
@@ -538,7 +448,8 @@ else
 
                 try
                 {
-                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigs.ToString());
+                    // Removing carriage returns
+                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigs.ToString().Replace("\r", ""));
                 }
                 catch (Exception e)
                 {
@@ -560,90 +471,6 @@ else
             }
 
     // Convert to YAML & Write to file
-            var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
-            var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
-            try
-            {
-                await File.WriteAllTextAsync(savedYamlConfigPath, cloneYamlConfigString);
-                await File.WriteAllTextAsync(lastConfigPath, originalYamlConfigString);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
-            }
-        }
-
-        Console.WriteLine("Configuration saved");
-        this.updateDropdowns();
-    }
-    
-    private async Task saveConfigOld()
-    {
-        if (!string.IsNullOrEmpty(fileString))
-        {
-    // Save a "classic" prometheus.yml file, without the addition of file_sd_configs
-            yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(currentDynamicConfig.ToString());
-            try
-            {
-                await File.WriteAllTextAsync(lastConfigPath, yamlConfigString);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[YAML:FILE.WRITE:EXCEPTION] {e}");
-            }
-
-            var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
-            
-    // Create JArray that gets filled with targets
-            JArray targetArray = new JArray();
-
-    // For each scrape_config (POH job), get the labels & the targets and put them inside the JArray
-            for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < clone["scrape_configs"].Count; scrapeConfigsIndex++)
-            {
-                string jobName = clone["scrape_configs"][scrapeConfigsIndex]["job_name"];
-                JArray staticConfigs = clone["scrape_configs"][scrapeConfigsIndex]["static_configs"];
-                targetArray.Add(staticConfigs);
-                // clone["scrape_configs"][scrapeConfigsIndex]["file_sd_configs"] = new JArray(new JObject(new JProperty("files", "targets.json")));
-                clone["scrape_configs"][scrapeConfigsIndex].Add("file_sd_configs", new JArray(new JObject(new JProperty("files", "targets.json"))));
-                clone["scrape_configs"][scrapeConfigsIndex].Remove("static_configs");
-            }
-            
-            // Write to JSON File
-            try
-            {
-                await File.WriteAllTextAsync(savedJsonConfigPath, targetArray.ToString());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"[JSON:FILE.WRITE:EXCEPTION] {e}");
-            }
-
-    // Clean up duplicate entries
-            foreach (JObject promJob in clone["scrape_configs"])
-            {
-    // ... static configs duplicates
-                // if (promJob["static_configs"].Count() > 1)
-                // {
-                //     for (int i = promJob["static_configs"].Count(); i > 1; i--)
-                //     {
-                //         promJob["static_configs"].Last.Remove();
-                //     }
-                // }
-
-    // TODO: Clean up dupilcate entries in the targets-array
-    // .. duplicates in targets-array
-            }
-
-
-    // Update drop-downs
-            jobNames.Clear();
-            foreach (var job in clone["scrape_configs"])
-            {
-                jobNames.Add(job["job_name"].ToString());
-            }
-
-    // Convert to YAML & Write to file
-            
             var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
             var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
             try
