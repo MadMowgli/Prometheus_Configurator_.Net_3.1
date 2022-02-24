@@ -448,8 +448,11 @@ else
 
                 try
                 {
-                    // Removing carriage returns
-                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigs.ToString().Replace("\r", ""));
+    // Removing carriage returns
+                    string staticConfigString = staticConfigs.ToString()
+                        .Replace(@"\r", "")
+                        .Replace(@"\n", "");
+                    await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigString);
                 }
                 catch (Exception e)
                 {
@@ -460,7 +463,7 @@ else
                 clone["scrape_configs"][scrapeConfigsIndex].Remove("static_configs");
                 clone["scrape_configs"][scrapeConfigsIndex].Add("file_sd_configs", new JArray(new JObject(new JProperty("files",
                     new JArray("targets_" + jobName + ".json")))));
-                // clone["scrape_configs"][scrapeConfigsIndex].Add("file_sd_configs", new JArray(new JObject(new JProperty("files", "targets_" + jobName + ".json"))));
+                
             }
 
     // Update drop-downs
@@ -664,35 +667,36 @@ else
 
     private void updateScrapingTarget()
     {
-    // Set defaults where necessary
-        if (string.IsNullOrEmpty(update_jobName))
-        {
-            update_jobName = "JobDefault";
-        }
-        if (string.IsNullOrEmpty(update_scrapeInterval))
-        {
-            update_scrapeInterval = "10s";
-        }
-        if (string.IsNullOrEmpty(update_scrapeTimeout))
-        {
-            update_scrapeTimeout = "5s";
-        }
-        if (string.IsNullOrEmpty(update_metricsPath))
-        {
-            update_metricsPath = "/metrics";
-        }
-        if (string.IsNullOrEmpty(update_scheme))
-        {
-            update_scheme = "https";
-        }
-        if (string.IsNullOrEmpty(update_targets))
-        {
-            update_targets = "192.168.0.1";
-        }
-        if (string.IsNullOrEmpty(update_labels))
-        {
-            update_labels = "label_1:value_1";
-        }
+
+    // // Set defaults where necessary
+    //     if (string.IsNullOrEmpty(update_jobName))
+    //     {
+    //         update_jobName = "JobDefault";
+    //     }
+    //     if (string.IsNullOrEmpty(update_scrapeInterval))
+    //     {
+    //         update_scrapeInterval = "10s";
+    //     }
+    //     if (string.IsNullOrEmpty(update_scrapeTimeout))
+    //     {
+    //         update_scrapeTimeout = "5s";
+    //     }
+    //     if (string.IsNullOrEmpty(update_metricsPath))
+    //     {
+    //         update_metricsPath = "/metrics";
+    //     }
+    //     if (string.IsNullOrEmpty(update_scheme))
+    //     {
+    //         update_scheme = "http";
+    //     }
+    //     if (string.IsNullOrEmpty(update_targets))
+    //     {
+    //         update_targets = "192.168.0.1";
+    //     }
+    //     if (string.IsNullOrEmpty(update_labels))
+    //     {
+    //         update_labels = "label_1:value_1";
+    //     }
 
     // Fill up collections
         update_targetList.AddRange(update_targets.Split(","));
