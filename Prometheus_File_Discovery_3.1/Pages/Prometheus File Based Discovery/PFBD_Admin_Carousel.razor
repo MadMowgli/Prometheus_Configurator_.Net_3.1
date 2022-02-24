@@ -448,10 +448,14 @@ else
 
                 try
                 {
-    // Removing carriage returns
-                    string staticConfigString = staticConfigs.ToString()
-                        .Replace(@"\r", "")
-                        .Replace(@"\n", "");
+                    // Validate json
+                    InputValidator inputValidator = InputValidator.getInputValidator();
+                    string staticConfigString = inputValidator.validateJson(staticConfigs.ToString());
+                    
+                    // Removing carriage returns
+                    // string staticConfigString = staticConfigs.ToString()
+                    //     .Replace(@"\r", "")
+                    //     .Replace(@"\n", "");
                     await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigString);
                 }
                 catch (Exception e)
@@ -668,35 +672,35 @@ else
     private void updateScrapingTarget()
     {
 
-    // // Set defaults where necessary
-    //     if (string.IsNullOrEmpty(update_jobName))
-    //     {
-    //         update_jobName = "JobDefault";
-    //     }
-    //     if (string.IsNullOrEmpty(update_scrapeInterval))
-    //     {
-    //         update_scrapeInterval = "10s";
-    //     }
-    //     if (string.IsNullOrEmpty(update_scrapeTimeout))
-    //     {
-    //         update_scrapeTimeout = "5s";
-    //     }
-    //     if (string.IsNullOrEmpty(update_metricsPath))
-    //     {
-    //         update_metricsPath = "/metrics";
-    //     }
-    //     if (string.IsNullOrEmpty(update_scheme))
-    //     {
-    //         update_scheme = "http";
-    //     }
-    //     if (string.IsNullOrEmpty(update_targets))
-    //     {
-    //         update_targets = "192.168.0.1";
-    //     }
-    //     if (string.IsNullOrEmpty(update_labels))
-    //     {
-    //         update_labels = "label_1:value_1";
-    //     }
+    // Set defaults where necessary
+        if (string.IsNullOrEmpty(update_jobName))
+        {
+            update_jobName = "JobDefault";
+        }
+        if (string.IsNullOrEmpty(update_scrapeInterval))
+        {
+            update_scrapeInterval = "10s";
+        }
+        if (string.IsNullOrEmpty(update_scrapeTimeout))
+        {
+            update_scrapeTimeout = "5s";
+        }
+        if (string.IsNullOrEmpty(update_metricsPath))
+        {
+            update_metricsPath = "/metrics";
+        }
+        if (string.IsNullOrEmpty(update_scheme))
+        {
+            update_scheme = "http";
+        }
+        if (string.IsNullOrEmpty(update_targets))
+        {
+            update_targets = "192.168.0.1";
+        }
+        if (string.IsNullOrEmpty(update_labels))
+        {
+            update_labels = "label_1:value_1";
+        }
 
     // Fill up collections
         update_targetList.AddRange(update_targets.Split(","));
@@ -706,8 +710,13 @@ else
         {
             var key = splitLabels.ElementAt(index)[0];
             var value = splitLabels.ElementAt(index)[1];
-            var label = new ConfigurationComponents.Label(key, value);
-            update_LabelList.Add(label);
+            // Prevent defaults
+            if (key != "label_1")
+            {
+                var label = new ConfigurationComponents.Label(key, value);
+                update_LabelList.Add(label);
+            }
+            
         }
 
     // Create new Prometheus Job
@@ -724,6 +733,7 @@ else
         dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
         Console.WriteLine("Updated job: " + update_jobName);
         this.updateDropdowns();
+        update_labels = "";
         this.saveConfig();
         this.showUpdateAlert = true;
         this.StateHasChanged();
