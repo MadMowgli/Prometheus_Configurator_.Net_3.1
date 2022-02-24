@@ -400,7 +400,7 @@ else
 
     private async Task readUpload()
     {
-    // Read file
+        // Read file
         try
         {
             using var reader = new System.IO.StreamReader(file.Data);
@@ -427,7 +427,7 @@ else
     {
         if (!string.IsNullOrEmpty(fileString))
         {
-    // Save a "classic" prometheus.yml file, without the addition of file_sd_configs
+            // Save a "classic" prometheus.yml file, without the addition of file_sd_configs
             yamlConfigString = PrometheusYamlDeserializer.serializeToYaml(currentDynamicConfig.ToString());
             try
             {
@@ -440,7 +440,7 @@ else
 
             var clone = JsonConvert.DeserializeObject<dynamic>(JsonConvert.SerializeObject(dynamicConfig));
 
-    // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
+            // For each scrape_config (POH job), get the labels & the targets and put them in a separate JSON file
             for (int scrapeConfigsIndex = 0; scrapeConfigsIndex < clone["scrape_configs"].Count; scrapeConfigsIndex++)
             {
                 string jobName = clone["scrape_configs"][scrapeConfigsIndex]["job_name"];
@@ -448,14 +448,9 @@ else
 
                 try
                 {
-                    // Validate json
+                    // Validate json & write to file
                     InputValidator inputValidator = InputValidator.getInputValidator();
                     string staticConfigString = inputValidator.validateJson(staticConfigs.ToString());
-                    
-                    // Removing carriage returns
-                    // string staticConfigString = staticConfigs.ToString()
-                    //     .Replace(@"\r", "")
-                    //     .Replace(@"\n", "");
                     await File.WriteAllTextAsync(savedJsonConfigPath + jobName + ".json", staticConfigString);
                 }
                 catch (Exception e)
@@ -463,21 +458,21 @@ else
                     Console.WriteLine($"[JSON:FILE.WRITE:EXCEPTION] {e}");
                 }
 
-    // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
+                // Manipulate the scrape_config objet to discard it's labels & targets and only have a job_name & file_sd_configs now instead
                 clone["scrape_configs"][scrapeConfigsIndex].Remove("static_configs");
                 clone["scrape_configs"][scrapeConfigsIndex].Add("file_sd_configs", new JArray(new JObject(new JProperty("files",
                     new JArray("targets_" + jobName + ".json")))));
                 
             }
 
-    // Update drop-downs
+            // Update drop-downs
             jobNames.Clear();
             foreach (var job in clone["scrape_configs"])
             {
                 jobNames.Add(job["job_name"].ToString());
             }
 
-    // Convert to YAML & Write to file
+            // Convert to YAML & Write to file
             var cloneYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(clone.ToString());
             var originalYamlConfigString = PrometheusYamlDeserializer.serializeToYaml(dynamicConfig.ToString());
             try
@@ -767,10 +762,10 @@ else
 
     private async void uploadConfiguration()
     {
-    // Read files
+        // Read files
         try
         {
-    // We're creating a copy of the upload while reading
+            // We're creating a copy of the upload while reading
             await readUpload();
         }
         catch (Exception e)
@@ -779,10 +774,10 @@ else
         }
 
 
-    // Convert to JSON
+        // Convert to JSON
         try
         {
-    // Here we define the dynamicConfig variable
+            // Here we define the dynamicConfig variable
             convertUploadToJson(fileString);
         }
         catch (Exception e)
@@ -791,7 +786,7 @@ else
         }
 
 
-    // Convert to .Net object
+        // Convert to .Net object
         try
         {
             currentDynamicConfig = dynamicConfig;
@@ -802,7 +797,7 @@ else
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
 
-    // Refresh UI & save config
+        // Refresh UI & save config
         await this.saveConfig();
         this.showUploadAlert = true;
         this.StateHasChanged();
