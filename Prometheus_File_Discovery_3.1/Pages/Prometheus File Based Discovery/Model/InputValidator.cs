@@ -34,7 +34,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             returnString = returnString.Replace(@"\r", "").Replace(@"\n", "");
         
             // Check for empty labels
-            JArray jArray = JsonConvert.DeserializeObject<JArray>(jsonString);
+            JArray jArray = JsonConvert.DeserializeObject<JArray>(returnString);
             foreach (JObject jObject in jArray)
             {
                 if (jObject.ContainsKey("labels"))
