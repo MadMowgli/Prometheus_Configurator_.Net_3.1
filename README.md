@@ -24,6 +24,9 @@ A few things to notice when implementing this plugin to your already existing Bl
     - `<script src="js/bootstrap.bundle.js"></script>`
     - `<script src="_content/BlazorInputFile/inputfile.js"></script>`
     - `<script src="/js/BlazorDownloadFile.js"></script>`
+  - The following  line needs to be added to the Startup.cs file:
+    - `endpoints.MapControllerRoute("api",
+      "{controller=ConfigurationController}/{action=Info"});`
 - Make sure to adjust namespaces.
 - Add the page to the Shared/NavMenu.razor to make it visible.
 - Add the following line to your _Imports.razor

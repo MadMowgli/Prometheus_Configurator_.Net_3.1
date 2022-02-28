@@ -57,6 +57,8 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapControllerRoute("api",
+                    "{controller=ConfigurationController}/{action=Info}");
             });
         }
     }
