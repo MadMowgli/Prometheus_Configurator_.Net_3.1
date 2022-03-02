@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -8,11 +9,12 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
     {
         // Fields
         private static InputValidator self;
+        private readonly Regex sWhiteSpace;
     
         // Singleton
         private InputValidator()
         {
-        
+            this.sWhiteSpace = new Regex(@"\s+|\\\""");
         }
         public static InputValidator getInputValidator()
         {
@@ -47,6 +49,15 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             }
 
             returnString = JsonConvert.SerializeObject(jArray, Formatting.Indented);
+            return returnString;
+        }
+
+        public string prepareApiJson(string jsonString)
+        {
+            string returnString = this.sWhiteSpace.Replace(jsonString, "");
+            returnString = returnString
+                .Replace(@"\r\n", "")
+                .Replace(@"\\r\\n", "\n");
             return returnString;
         }
     }
