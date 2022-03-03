@@ -47,3 +47,7 @@ in many programming languages such as C#. All changes from the user coming from 
 creates an updated prometheus.yml, as well as a previous_prometheus_config.yml. Whenever the page is refreshed, the application checks if a previous_prometheus_config.yml
 is existing and loads this model into memory if so. This way, the application keeps track of the newest model at all times.
 
+### Python Script Addition & Configuration Hosting
+With this Blazor feature being possibly deployed in a business environment, the need for **automatic configuration scraping** arises.
+
+
