@@ -67,9 +67,12 @@ except IOError as e:
 # get md5-checksum from api
 try:
     md5_request = requests.get(md5_endpoint, verify=False)
+    if md5_request.status_code is not 200:
+        logging.error('Request-error, HTTP status code: {}'.format(md5_request.status_code))
+        exit()
 except requests.exceptions.RequestException as e:
     logging.warning('Requests-Exception: {}'.format(e.strerror))
-if md5_request is not None:
+if md5_request is not None and md5_request.status_code is 200:
     api_md5 = json.loads(md5_request.text)
     api_md5 = api_md5['Checksum']
 
@@ -88,10 +91,13 @@ if local_md5 != api_md5:
     # make request, we may need to specify a private certificate using verify='pathToCertificate'
     try:
         config_request = requests.get(config_endpoint, verify=False)
+        if config_request.status_code is not 200:
+            logging.error('Request-error, HTTP status code: {}'.format(config_request.status_code))
+            exit()
     except requests.exceptions.RequestException as e:
         logging.warning('Requests-Exception: {}'.format(e.strerror))
 
-    if config_request is not None:
+    if config_request is not None and config_request.status_code == 200:
         response = config_request.text
 
         # Convert to JSON object to generate files from it

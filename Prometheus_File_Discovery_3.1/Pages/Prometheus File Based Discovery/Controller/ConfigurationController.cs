@@ -22,7 +22,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         // GET
         [HttpGet]
         [Route("getConfig")]
-        public async Task<JsonResult> getConfig()
+        public async Task<ActionResult> getConfig()
         {
             try
             {
@@ -51,7 +51,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             }
             catch (Exception e)
             {
-                return Json("None");
+                return NotFound();
             }
             
 
@@ -60,7 +60,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
 
         [HttpGet]
         [Route("getChecksum")]
-        public async Task<JsonResult> getChecksum()
+        public async Task<ActionResult> getChecksum()
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             }
             catch (Exception e)
             {
-                return Json("None");
+                return NotFound();
             }
             
         }
