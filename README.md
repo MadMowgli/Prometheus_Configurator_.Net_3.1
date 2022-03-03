@@ -48,6 +48,19 @@ creates an updated prometheus.yml, as well as a previous_prometheus_config.yml. 
 is existing and loads this model into memory if so. This way, the application keeps track of the newest model at all times.
 
 ### Python Script Addition & Configuration Hosting
+![PythonWorkflow](Resources/Screenshots/Python%20Script%20Addition/Python%20Script%20Addition%20-%20page%202.png)
 With this Blazor feature being possibly deployed in a business environment, the need for **automatic configuration scraping** arises.
+The basic idea is the following:
+- Your current configuration files _(all of them, the main prometheus.yml as well as any possible .json target file)_ are hosted on Blazor.
+  - Changes are reflected immediately
+  - To keep things tight, every configuration file is stuffed inside one single JSON object. This JSON object is then made available on the **/getConfig** endpoint.
+- The additional Python script can be deployed on any server running Prometheus.
+  - This script can be set up as a service or a scheduled task.
+  - It takes the base url of your Blazor webpage as a **must-have command line argument** for execution
+  - When fired, the script matches the MD5-hash of your local prometheus.yml file to the one **available on the /getChecksum** endpoint.
+  - If the script detects a change (hence different MD5 hashes), it creates a backup of the local configuration files, downloads the new ones from your Blazor server and puts them in place.
+
+Logging is enabled to the warning-level, should you experience any kind of error. To prevent any damage on your running Prometheus instance, the script exits when the request to your Blazor
+server returns anything else than HTTP 200.
 
 
