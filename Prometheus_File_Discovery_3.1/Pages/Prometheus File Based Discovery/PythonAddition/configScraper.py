@@ -5,11 +5,10 @@ Author:         Joel Laeubin
 Dependencies:   urllib3[secure] because of TLS warnings, check https://urllib3.readthedocs.io/en/1.26.x/user-guide.html#ssl
 VarArgs:        - sys.argv[0] = script name
                 - sys.argv[1] = base url of scraping point
-                - sys.argv[2] = 
+                - sys.argv[2] = local path to the prometheus.yml configuration file (including the file name)
 '''
 
-# imports
-import logging
+# importsK
 import sys
 import requests
 import json
