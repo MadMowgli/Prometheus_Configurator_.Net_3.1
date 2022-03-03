@@ -1,6 +1,6 @@
 '''
 Python:         Python 2.7.16 (v2.7.16:413a49145e, Mar  4 2019, 01:37:19) [MSC v.1500 64 bit (AMD64)]
-Context:        This script belongs to the Prometheus Configurator.
+Context:        This script is part of the Prometheus Configurator.
 Author:         Joel Laeubin
 Dependencies:   urllib3[secure] because of TLS warnings, check https://urllib3.readthedocs.io/en/1.26.x/user-guide.html#ssl
 VarArgs:        - sys.argv[0] = script name
@@ -8,7 +8,7 @@ VarArgs:        - sys.argv[0] = script name
                 - sys.argv[2] = local path to the prometheus.yml configuration file (including the file name)
 '''
 
-# importsK
+# imports
 import sys
 import requests
 import json
