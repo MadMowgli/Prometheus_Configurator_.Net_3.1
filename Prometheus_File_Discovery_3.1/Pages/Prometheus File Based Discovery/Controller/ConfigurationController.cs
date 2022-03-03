@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -27,10 +28,10 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         [Route("getConfig")]
         public async Task<JsonResult> getConfig()
         {
-            // Add custom header which notes the separator used to split each config file
+            // Add json header
             HttpContext.Response.Headers.Add("content-type", "application/json");
             
-            // Create new JObject to stuff data
+            // Create new object to stuff data
             ApiConfiguration apiConfiguration = new ApiConfiguration();
             
             // Add main prometheus config
@@ -51,6 +52,24 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             return Json(apiConfiguration.getConfigs());
 
             
+        }
+
+        [HttpGet]
+        [Route("getChecksum")]
+        public async Task<JsonResult> getChecksum()
+        {
+            // Add json header
+            HttpContext.Response.Headers.Add("content-type", "application/json");
+            
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = System.IO.File.OpenRead("Data/prometheus.yml"))
+                {
+                    Dictionary<string, string> data = new Dictionary<string, string>();
+                    data.Add("Checksum", BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant());
+                    return Json(data);
+                }
+            }
         }
     }
 }
