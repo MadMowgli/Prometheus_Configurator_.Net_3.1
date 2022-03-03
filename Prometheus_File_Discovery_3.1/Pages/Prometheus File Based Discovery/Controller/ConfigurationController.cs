@@ -28,28 +28,36 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         [Route("getConfig")]
         public async Task<JsonResult> getConfig()
         {
-            // Add json header
-            HttpContext.Response.Headers.Add("content-type", "application/json");
-            
-            // Create new object to stuff data
-            ApiConfiguration apiConfiguration = new ApiConfiguration();
-            
-            // Add main prometheus config
-            string promConfig = await System.IO.File.ReadAllTextAsync("Data/prometheus.yml");
-            promConfig = promConfig.Replace(@"\r\n", "");
-            apiConfiguration.getConfigs().Add("prometheus.yml", promConfig);
-
-            // Look for all the JSON files and append them to an array
-            foreach (var fileEntry in Directory.GetFiles("Data", "*.json"))
+            try
             {
-                string fileName = Path.GetFileName(fileEntry);
-                apiConfiguration.getConfigs().Add(fileName, await System.IO.File.ReadAllTextAsync(fileEntry));
-            }
+                // Add json header
+                HttpContext.Response.Headers.Add("content-type", "application/json");
+            
+                // Create new object to stuff data
+                ApiConfiguration apiConfiguration = new ApiConfiguration();
+            
+                // Add main prometheus config
+                string promConfig = await System.IO.File.ReadAllTextAsync("Data/prometheus.yml");
+                promConfig = promConfig.Replace(@"\r\n", "");
+                apiConfiguration.getConfigs().Add("prometheus.yml", promConfig);
+
+                // Look for all the JSON files and append them to an array
+                foreach (var fileEntry in Directory.GetFiles("Data", "*.json"))
+                {
+                    string fileName = Path.GetFileName(fileEntry);
+                    apiConfiguration.getConfigs().Add(fileName, await System.IO.File.ReadAllTextAsync(fileEntry));
+                }
 
             
-            // Holy crap.. Blazor wasn't able to return a JObject because it double-serialized it.
-            // https://stackoverflow.com/questions/49330187/jsonconverter-serialize-failing-returning-a-string-rather-than-json-object ...?!
-            return Json(apiConfiguration.getConfigs());
+                // Holy crap.. Blazor wasn't able to return a JObject because it double-serialized it.
+                // https://stackoverflow.com/questions/49330187/jsonconverter-serialize-failing-returning-a-string-rather-than-json-object ...?!
+                return Json(apiConfiguration.getConfigs());
+            }
+            catch (Exception e)
+            {
+                return Json("None");
+            }
+            
 
             
         }
@@ -58,18 +66,26 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         [Route("getChecksum")]
         public async Task<JsonResult> getChecksum()
         {
-            // Add json header
-            HttpContext.Response.Headers.Add("content-type", "application/json");
-            
-            using (var md5 = MD5.Create())
+            try
             {
-                using (var stream = System.IO.File.OpenRead("Data/prometheus.yml"))
+                // Add json header
+                HttpContext.Response.Headers.Add("content-type", "application/json");
+            
+                using (var md5 = MD5.Create())
                 {
-                    Dictionary<string, string> data = new Dictionary<string, string>();
-                    data.Add("Checksum", BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant());
-                    return Json(data);
+                    using (var stream = System.IO.File.OpenRead("Data/prometheus.yml"))
+                    {
+                        Dictionary<string, string> data = new Dictionary<string, string>();
+                        data.Add("Checksum", BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant());
+                        return Json(data);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                return Json("None");
+            }
+            
         }
     }
 }
