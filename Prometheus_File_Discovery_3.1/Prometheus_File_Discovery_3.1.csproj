@@ -48,8 +48,4 @@
         <Content Remove="appsettings.Development.json" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Pages\Prometheus File Based Discovery\PythonAddition" />
-    </ItemGroup>
-
 </Project>
