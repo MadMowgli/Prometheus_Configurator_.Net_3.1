@@ -784,21 +784,29 @@ else
         // Cleanup Data directory if a previous config existed
         if (!String.IsNullOrEmpty(fileString))
         {
-            // Create Backup Dir
-            string todayString = DateTime.Now.ToString("g")
-                .Replace("/", ".")
-                .Replace(" ", "-")
-                .Replace(":", "T");
-            string backupString = $"Data\\backup\\{todayString}";
-            DirectoryInfo dirInfo = Directory.CreateDirectory(backupString);
-            foreach (var fileEntry in Directory.GetFiles("Data"))
+            try
             {
-                if (fileEntry.Contains(".json") || fileEntry.Contains(".yml"))
+    // Create Backup Dir
+                string todayString = DateTime.Now.ToString("g")
+                    .Replace("/", ".")
+                    .Replace(" ", "-")
+                    .Replace(":", "T");
+                string backupString = $"Data\\backup\\{todayString}";
+                DirectoryInfo dirInfo = Directory.CreateDirectory(backupString);
+                foreach (var fileEntry in Directory.GetFiles("Data"))
                 {
-                    File.Move(fileEntry, backupString + "\\" +  fileEntry.Replace("Data\\", ""));
-                    File.Delete(fileEntry);
+                    if (fileEntry.Contains(".json") || fileEntry.Contains(".yml"))
+                    {
+                        File.Move(fileEntry, backupString + "\\" + fileEntry.Replace("Data\\", ""));
+                        File.Delete(fileEntry);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Backup Exception: " + e.Message);
+            }
+            
         }
         
         // Read files
