@@ -669,6 +669,9 @@ else
             add_labelList.Add(label);
         }
 
+        // Create dict to validate inputs
+        
+        
     // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
             add_metricsPath, add_scheme, add_targetList, add_labelList);
