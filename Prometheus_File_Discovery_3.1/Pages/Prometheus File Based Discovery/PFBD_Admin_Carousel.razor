@@ -283,6 +283,18 @@ else
 </div>
 }
 
+@if (showOverrideAlert)
+{
+<div class="alert alert-warning alert-dismissible fade show d-flex" role="alert">
+  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
+    <div>
+        Attention: You're about to upload a new configuration. By doing so, you will override the currently existing
+        config, hence deleting all the current files and replacing them with your newly uploaded one.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+</div>
+}
 
 </div>
 
@@ -334,6 +346,7 @@ else
     private bool showUpdateAlert { get; set; } = false;
     private bool showDeleteAlert { get; set; } = false;
     private bool showUploadAlert { get; set; } = false;
+    private bool showOverrideAlert { get; set; } = false;
 
 
     // ------------------------------------------  Methods to load & save data
@@ -370,6 +383,12 @@ else
 
     private void OnInputFileChange(IFileListEntry[] files)
     {
+        // Create popup, warning for overriding configuration
+        if (!string.IsNullOrEmpty(fileString))
+        {
+            showOverrideAlert = true;
+        }
+        
         Console.WriteLine("File upload detected");
         file = files.FirstOrDefault();
     }
@@ -762,6 +781,26 @@ else
 
     private async void uploadConfiguration()
     {
+        // Cleanup Data directory if a previous config existed
+        if (!String.IsNullOrEmpty(fileString))
+        {
+            // Create Backup Dir
+            string todayString = DateTime.Now.ToString("g")
+                .Replace("/", ".")
+                .Replace(" ", "-")
+                .Replace(":", "T");
+            string backupString = $"Data\\backup\\{todayString}";
+            DirectoryInfo dirInfo = Directory.CreateDirectory(backupString);
+            foreach (var fileEntry in Directory.GetFiles("Data"))
+            {
+                if (fileEntry.Contains(".json") || fileEntry.Contains(".yml"))
+                {
+                    File.Move(fileEntry, backupString + "\\" +  fileEntry.Replace("Data\\", ""));
+                    File.Delete(fileEntry);
+                }
+            }
+        }
+        
         // Read files
         try
         {
@@ -797,6 +836,9 @@ else
             Console.WriteLine($"[CONVERSION:C#:EXCEPTION] {e}");
         }
 
+        // Clean inputs
+        file = null;
+        
         // Refresh UI & save config
         await this.saveConfig();
         this.showUploadAlert = true;

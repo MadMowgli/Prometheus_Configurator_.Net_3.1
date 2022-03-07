@@ -63,4 +63,3 @@ The basic idea is the following:
 Logging is enabled to the warning-level, should you experience any kind of error. To prevent any damage on your running Prometheus instance, the script exits when the request to your Blazor
 server returns anything else than HTTP 200.
 
-
