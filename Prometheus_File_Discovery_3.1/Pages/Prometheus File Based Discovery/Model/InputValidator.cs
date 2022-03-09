@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -59,6 +61,81 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                 .Replace(@"\r\n", "")
                 .Replace(@"\\r\\n", "\n");
             return returnString;
+        }
+
+        public Dictionary<string, bool> validateNewTarget(Dictionary<string, object> inputDict)
+        {
+            Dictionary<string, bool> returnDict = new Dictionary<string, bool>();
+            foreach (var entry in inputDict)
+            {
+                if (entry.Key == "Job Name")
+                {
+                    string compare = (string) entry.Value;
+                    bool isValid = Regex.IsMatch(compare, @"[a-zA-Z\d]{1,80}");
+                    returnDict.Add(entry.Key, isValid);
+                }
+
+                if (entry.Key == "Targets")
+                {
+                    List<string> compare = (List<string>) entry.Value;
+                    bool isValid = true;
+                    foreach (string target in compare)
+                    {
+                        if (!Regex.IsMatch(target, @"(?:[0-9]{1,3}\.){3}[0-9]{1,3}\:[0-9]{2,5}"))
+                        {
+                            isValid = false;
+                        }
+                    }
+                    returnDict.Add(entry.Key, isValid);
+                }
+                
+                if (entry.Key == "Labels")
+                {
+                    List<ConfigurationComponents.Label> compare = (List<ConfigurationComponents.Label>) entry.Value;
+                    bool isValid = true;
+                    foreach (ConfigurationComponents.Label label in compare)
+                    {
+                        string key = label.key;
+                        string value = label.value;
+                        if (!Regex.IsMatch(key, @"") || !Regex.IsMatch(value, @""))
+                        {
+                            isValid = false;
+                        }
+                    }
+                    returnDict.Add(entry.Key, isValid);
+                }
+                
+                if (entry.Key == "Scrape Interval")
+                {
+                    string compare = (string) entry.Value;
+                    bool isValid = Regex.IsMatch(compare, @"\d+s");
+                    returnDict.Add(entry.Key, isValid);
+                }
+                
+                if (entry.Key == "Scrape Timeout")
+                {
+                    string compare = (string) entry.Value;
+                    bool isValid = Regex.IsMatch(compare, @"\d+s");
+                    returnDict.Add(entry.Key, isValid);
+                }
+                
+                if (entry.Key == "Metrics Path")
+                {
+                    string compare = (string) entry.Value;
+                    bool isValid = Regex.IsMatch(compare, @"/[a-z]+");
+                    returnDict.Add(entry.Key, isValid);
+                }
+                
+                if (entry.Key == "Scheme")
+                {
+                    string compare = (string) entry.Value;
+                    bool isValid = compare is "http" or "https";
+                    returnDict.Add(entry.Key, isValid);
+                }
+            }
+            
+            
+            return returnDict;
         }
     }
 }

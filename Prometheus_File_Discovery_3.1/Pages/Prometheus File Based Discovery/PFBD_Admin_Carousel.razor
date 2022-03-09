@@ -657,7 +657,7 @@ else
             add_labels = "label_1:value_1";
         }
 
-    // Fill up collections
+        // Fill up collections
         add_targetList.AddRange(add_targets.Split(", "));
         var labels = add_labels.Split(", ");
         var splitLabels = from label in labels select label.Split(":");
@@ -670,13 +670,25 @@ else
         }
 
         // Create dict to validate inputs
+        Dictionary<string, object> validationDict = new Dictionary<string, object>();
+        validationDict.Add("Job Name", add_jobName);
+        validationDict.Add("Targets", add_targetList);
+        validationDict.Add("Labels", add_labelList);
+        validationDict.Add("Scrape Interval", add_scrapeInterval);
+        validationDict.Add("Scrape Timeout", add_scrapeTimeout);
+        validationDict.Add("Metrics Path", add_metricsPath);
+        validationDict.Add("Scheme", add_scheme);
         
+        // Validate
+        Dictionary<string, bool> validationResult = InputValidator.getInputValidator().validateNewTarget(validationDict);
         
-    // Create new Prometheus Job
+        // TODO: React to validation
+        
+        // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
             add_metricsPath, add_scheme, add_targetList, add_labelList);
 
-    // Add to existing model
+        // Add to existing model
         dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
 
         Console.WriteLine("Scrape Config Added");
