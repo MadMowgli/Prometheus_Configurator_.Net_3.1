@@ -340,16 +340,15 @@ else
 
 @if (showErrorAlert)
 {
-    @for(int i = errorMessages.Count; i == 0; i--)
+    @foreach (string errorMessage in errorMessages)
     {
         <div class="alert alert-danger alert-dismissible fade show d-flex" role="alert">
             <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
             <div>
-                @errorMessages.Dequeue()
+                @errorMessage
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
-        StateHasChanged();
+        </div> 
     }
 }
 
@@ -407,7 +406,7 @@ else
     private bool showErrorAlert { get; set; } = false;
 
     private List<string> invalidInputFields { get; set; } = new List<string>();
-    private Queue<string> errorMessages { get; set; } = new Queue<string>();
+    private List<string> errorMessages { get; set; } = new List<string>();
     private List<int> toastIDs { get; set; } = new List<int>();
 
 
@@ -695,7 +694,7 @@ else
         // Set defaults where necessary
         if (string.IsNullOrEmpty(add_jobName))
         {
-            errorMessages.Enqueue("Please provide a job name.");
+            errorMessages.Add("Please provide a job name.");
         }
         if (string.IsNullOrEmpty(add_scrapeInterval))
         {
@@ -715,7 +714,7 @@ else
         }
         if (string.IsNullOrEmpty(add_targets))
         {
-            errorMessages.Enqueue("Please provide at least 1 target.");
+            errorMessages.Add("Please provide at least 1 target.");
         }
         if (string.IsNullOrEmpty(add_labels))
         {
@@ -772,6 +771,7 @@ else
         {
             Console.WriteLine("Errors found");
             showErrorAlert = true;
+            Thread.Sleep(100);
             // foreach (int toastID in toastIDs)
             // {
             //     JS.InvokeVoidAsync("showToast", Convert.ToString(toastID));
