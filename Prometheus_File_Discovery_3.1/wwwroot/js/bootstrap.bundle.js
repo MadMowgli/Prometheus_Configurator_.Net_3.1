@@ -6638,7 +6638,7 @@
     };
     const Default = {
         animation: true,
-        autohide: true,
+        autohide: false,
         delay: 5000
     };
 

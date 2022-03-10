@@ -63,16 +63,31 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             return returnString;
         }
 
-        public Dictionary<string, bool> validateNewTarget(Dictionary<string, object> inputDict)
+        public Dictionary<string, List<bool>> validateNewTarget(Dictionary<string, object> inputDict, dynamic dynamicConfig)
         {
-            Dictionary<string, bool> returnDict = new Dictionary<string, bool>();
+            Dictionary<string, List<bool>> returnDict = new Dictionary<string, List<bool>>();
             foreach (var entry in inputDict)
             {
                 if (entry.Key == "Job Name")
                 {
+                    // Check for format
                     string compare = (string) entry.Value;
-                    bool isValid = Regex.IsMatch(compare, @"[a-zA-Z\d]{1,80}");
-                    returnDict.Add(entry.Key, isValid);
+                    bool formatIsValid = Regex.IsMatch(compare, @"[a-zA-Z\d]{1,80}");
+
+                    // Check for double entry
+                    bool nameNoDuplicate = true;
+                    for (int i = 0; i < dynamicConfig["scrape_configs"].Count; i++)
+                    {
+                        if (dynamicConfig["scrape_configs"][i]["job_name"] == compare)
+                        {
+                            nameNoDuplicate = false;
+                        }
+                    }
+
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(formatIsValid);
+                    validationList.Add(nameNoDuplicate);
+                    returnDict.Add(entry.Key, validationList);
                 }
 
                 if (entry.Key == "Targets")
@@ -86,7 +101,10 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                             isValid = false;
                         }
                     }
-                    returnDict.Add(entry.Key, isValid);
+                    
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
                 
                 if (entry.Key == "Labels")
@@ -102,35 +120,49 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                             isValid = false;
                         }
                     }
-                    returnDict.Add(entry.Key, isValid);
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
                 
                 if (entry.Key == "Scrape Interval")
                 {
                     string compare = (string) entry.Value;
                     bool isValid = Regex.IsMatch(compare, @"\d+s");
-                    returnDict.Add(entry.Key, isValid);
+                    
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
                 
                 if (entry.Key == "Scrape Timeout")
                 {
                     string compare = (string) entry.Value;
                     bool isValid = Regex.IsMatch(compare, @"\d+s");
-                    returnDict.Add(entry.Key, isValid);
+                    
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
                 
                 if (entry.Key == "Metrics Path")
                 {
                     string compare = (string) entry.Value;
                     bool isValid = Regex.IsMatch(compare, @"/[a-z]+");
-                    returnDict.Add(entry.Key, isValid);
+                    
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
                 
                 if (entry.Key == "Scheme")
                 {
                     string compare = (string) entry.Value;
-                    bool isValid = compare is "http" or "https";
-                    returnDict.Add(entry.Key, isValid);
+                    bool isValid = compare == "http" || compare == "https";
+                    
+                    List<bool> validationList = new List<bool>();
+                    validationList.Add(isValid);
+                    returnDict.Add(entry.Key, validationList);
                 }
             }
             
