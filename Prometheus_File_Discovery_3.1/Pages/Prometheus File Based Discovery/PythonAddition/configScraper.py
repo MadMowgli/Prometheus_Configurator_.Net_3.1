@@ -8,14 +8,15 @@ VarArgs:        - sys.argv[0] = script name
                 - sys.argv[2] = local path to the prometheus.yml configuration file (including the file name)
 '''
 
-# imports
-import sys
-import requests
-import json
 import hashlib
+import json
 import logging
 import os
 import shutil
+# imports
+import sys
+
+import requests
 
 # --------------------------------------------------------------------------------------------- Setup
 # configure logging
