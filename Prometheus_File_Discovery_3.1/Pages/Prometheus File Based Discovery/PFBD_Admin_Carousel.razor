@@ -18,28 +18,28 @@
 <div class="container-fluid mt-3">
 
 <!-- Error toasts, blazor doesn't handle this well... -->
-@* @if (showErrorAlert) *@
-@* { *@
-@*     <div aria-live="polite" aria-atomic="true" class="position-relative"> *@
-@*         <div class="toast-container position-absolute top-0 end-0 p-3"> *@
-@*                 @for (int i = errorMessages.Count; i > 0; i--) *@
-@*                     { *@
-@*                         <div id="@i" class="toast" role="alert" aria-live="assertive" aria-atomic="true"> *@
-@*                             <div class="toast-header"> *@
-@*                                 <img src="img/error_red.png" class="rounded me-2" alt="..."> *@
-@*                                 <strong class="me-auto">Error</strong> *@
-@*                                 <small>There was an input error</small> *@
-@*                                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button> *@
-@*                             </div> *@
-@*                             <div class="toast-body"> *@
-@*                                 @errorMessages.Dequeue() *@
-@*                             </div> *@
-@*                         </div> *@
-@*                         toastIDs.Add(i); *@
-@*                     } *@
-@*             </div> *@
-@*     </div> *@
-@* } *@
+@if (showErrorAlert)
+{
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-absolute top-0 end-0 p-3">
+                @for (int i = errorMessageQueue.Count; i > 0; i--)
+                    {
+                        <div id="@i" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="toast-header">
+                                <img src="img/error_red.png" class="rounded me-2" alt="...">
+                                <strong class="me-auto">Error</strong>
+                                <small>There was an input error</small>
+                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                            <div class="toast-body">
+                                @errorMessageQueue.Dequeue()
+                            </div>
+                        </div>
+                        toastIDs.Add(i);
+                    }
+            </div>
+    </div>
+}
 
 @if (string.IsNullOrEmpty(fileString))
 {
@@ -338,6 +338,7 @@ else
 
 }
 
+@*
 @if (showErrorAlert)
 {
     @foreach (string errorMessage in errorMessages)
@@ -351,6 +352,7 @@ else
         </div> 
     }
 }
+*@
 
 </div>
 
@@ -407,6 +409,7 @@ else
 
     private List<string> invalidInputFields { get; set; } = new List<string>();
     private List<string> errorMessages { get; set; } = new List<string>();
+    private Queue<string> errorMessageQueue { get; set; } = new Queue<string>();
     private List<int> toastIDs { get; set; } = new List<int>();
 
 
@@ -688,6 +691,11 @@ else
     // ------------------------------------------ Methods to manipulate config model
     private void addScrapingTarget()
     {
+     
+        // Clear only lists
+        add_labelList.Clear();
+        add_targetList.Clear();
+
         // Clear error queue
         errorMessages.Clear();
 
@@ -695,6 +703,7 @@ else
         if (string.IsNullOrEmpty(add_jobName))
         {
             errorMessages.Add("Please provide a job name.");
+            errorMessageQueue.Enqueue("Please provide a job name.");
         }
         if (string.IsNullOrEmpty(add_scrapeInterval))
         {
@@ -715,6 +724,7 @@ else
         if (string.IsNullOrEmpty(add_targets))
         {
             errorMessages.Add("Please provide at least 1 target.");
+            errorMessageQueue.Enqueue("Please provide at least 1 target.");
         }
         if (string.IsNullOrEmpty(add_labels))
         {
@@ -722,7 +732,7 @@ else
         }
 
         // Check for errors
-        if (errorMessages.Count == 0)
+        if (errorMessages.Count == 0 && errorMessageQueue.Count == 0)
         {
             // Fill up collections
             add_targetList.AddRange(add_targets.Split(", "));
@@ -764,6 +774,9 @@ else
                 this.saveConfig();
                 this.showAddAlert = true;
                 this.StateHasChanged();
+                
+                // Clear lists
+                cleanInputsFrom("add");
             }
             
         }
@@ -772,12 +785,14 @@ else
             Console.WriteLine("Errors found");
             showErrorAlert = true;
             Thread.Sleep(100);
-            // foreach (int toastID in toastIDs)
-            // {
-            //     JS.InvokeVoidAsync("showToast", Convert.ToString(toastID));
-            // }
+            foreach (int toastID in toastIDs)
+            {
+                 JS.InvokeVoidAsync("showToast", Convert.ToString(toastID));
+            }
             StateHasChanged();
         }
+        
+        
 
     }
 
@@ -849,6 +864,9 @@ else
         this.saveConfig();
         this.showUpdateAlert = true;
         this.StateHasChanged();
+        
+        // Clear lists & variables
+        cleanInputsFrom("update");
     }
 
     private void removeScrapingTarget()
@@ -980,6 +998,38 @@ else
         showInputAlert = !returnVal;
         return returnVal;
     }
+
+    private void cleanInputsFrom(String operation)
+    {
+        switch (operation)
+        {
+            case "add":
+                add_targetList.Clear();
+                add_labelList.Clear();
+                add_labels = "";
+                add_scheme = "";
+                add_targets = "";
+                add_jobName = "";
+                add_metricsPath = "";
+                add_scrapeInterval = "";
+                add_scrapeTimeout = "";
+                break;
+            case "update":
+                update_targetList.Clear();
+                update_LabelList.Clear();
+                update_labels = "";
+                update_scheme = "";
+                update_targets = "";
+                update_jobName = "";
+                update_metricsPath = "";
+                update_scrapeInterval = "";
+                update_scrapeTimeout = "";
+                break;
+        }
+    }
     
     // TODO: Updating a scraping target leads to multiple wrong entries in the target section
+    // Half-implemented: Use the cleanInputsFrom() method after a successful add / update to clean the lists
+    
+    // TODO: Visual feedback. Alerts get removed from the DOM, which leads to Blazor crashing
 }
