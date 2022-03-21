@@ -8,7 +8,7 @@
     // Loop over JSON object and trigger errors where required
     for (const key of Object.keys(validationDict)) {
         if(!validationDict[key]) {
-            this.showErrorFor(key, operation)
+            this.showErrorFor(key.replaceAll(" ", ""), operation)
         }
     }
 }

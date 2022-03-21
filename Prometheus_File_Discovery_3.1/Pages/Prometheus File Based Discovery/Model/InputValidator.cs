@@ -130,21 +130,21 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                 if (entry.Key == "Scrape Interval")
                 {
                     string compare = (string) entry.Value;
-                    bool isValid = Regex.IsMatch(compare, @"\d+s");
+                    bool isValid = Regex.IsMatch(compare, @"^\d+s$");
                     returnDict.Add(entry.Key, isValid);
                 }
                 
                 if (entry.Key == "Scrape Timeout")
                 {
                     string compare = (string) entry.Value;
-                    bool isValid = Regex.IsMatch(compare, @"\d+s");
+                    bool isValid = Regex.IsMatch(compare, @"^\d+s$");
                     returnDict.Add(entry.Key, isValid);
                 }
                 
                 if (entry.Key == "Metrics Path")
                 {
                     string compare = (string) entry.Value;
-                    bool isValid = Regex.IsMatch(compare, @"/[a-z]+");
+                    bool isValid = Regex.IsMatch(compare, @"^/[a-z]+$");
                     returnDict.Add(entry.Key, isValid);
                 }
                 

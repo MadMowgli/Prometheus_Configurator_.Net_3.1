@@ -213,7 +213,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             public List<string> targets { get; set; } = new List<string>();
             public Dictionary<string, string> labels { get; set; } = new Dictionary<string, string>();
 
-            // Constructor
+            // Constructors
             public Static_Configs()
             {
             }
@@ -222,6 +222,11 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             {
                 this.targets = targets;
                 this.labels = labels;
+            }
+
+            public Static_Configs(List<string> targets)
+            {
+                this.targets = targets;
             }
         }
 

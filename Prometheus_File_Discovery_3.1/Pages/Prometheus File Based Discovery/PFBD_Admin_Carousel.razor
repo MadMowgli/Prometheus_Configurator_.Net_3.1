@@ -114,35 +114,64 @@
                         <h3 class="text-center">Update</h3>
                     </div>
                     <div class="card-body border border-warning">
+                        
+                        <!-------------------------------------- Update Job Name -->
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                            <select class="form-select" @onchange="@updateUpdateFields" id="inputGroupSelect01">
+                            <select id="inputGroupSelect01" class="form-select" @onchange="@updateUpdateFields" >
                                 @foreach (string jobName in jobNames)
                                 {
                                     <option value="@jobName">@jobName</option>
                                 }
                             </select>
                         </div>
+                        
+                        <!-------------------------------------- Update Targets -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="basic-addon1">Targets</span>
-                            <input type="text" class="form-control" @bind-value="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <span id="SpanUpdateTargets" class="input-group-text" >Targets</span>
+                            <input id="InputUpdateTargets" type="text" class="form-control" @bind-value="@update_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
+                        <div id="ErrorUpdateTargets" class="invalid-feedback">
+                            <p>Enter your target IPs separated by a comma an optional whitespace (, ) - but always include the target port.</p>
+                        </div>
+                        
+                        <!-------------------------------------- Update Labels -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="basic-addon1">Labels</span>
-                            <input type="text" class="form-control" @bind-value="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <span id="SpanUpdateLabels " class="input-group-text" >Labels</span>
+                            <input id="InputUpdateLabels" type="text" class="form-control" @bind-value="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
+                        <div id="ErrorUpdateLabels" class="invalid-feedback">
+                                                    <p>Enter the key-value pairs separated by colon (key:value) and each tuple separated by comma (, ).</p>
+                                                </div>
+                        
+                        <!-------------------------------------- Update Scrape Interval -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="basic-addon1">Scrape Interval</span>
-                            <input type="text" class="form-control" @bind-value="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
+                            <span id="SpanUpdateScrapeInterval" class="input-group-text">Scrape Interval</span>
+                            <input id="InputUpdateScrapeInterval" type="text" class="form-control" @bind-value="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
+                        <div id="ErrorUpdateScrapeInterval" class="invalid-feedback">
+                            <p>Enter the scrape interval in seconds, adding a trailing s (XYZs).</p>
+                        </div>
+                        
+                        <!-------------------------------------- Update Scrape Timeout -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="basic-addon1">Scrape Timeout</span>
-                            <input type="text" class="form-control" @bind-value="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
+                            <span id="SpanUpdateScrapeTimeout" class="input-group-text">Scrape Timeout</span>
+                            <input id="InputUpdateScrapeTimeout" type="text" class="form-control" @bind-value="@update_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="basic-addon1"/>
                         </div>
+                        <div id="ErrorUpdateScrapeTimeout" class="invalid-feedback">
+                                                    <p>Enter the scrape timeout in seconds, adding a trailing s (XYZs).</p>
+                                                </div>
+                        
+                        <!-------------------------------------- Update Metrics Path -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="basic-addon1">Metrics Path</span>
-                            <input type="text" class="form-control" @bind-value="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
+                            <span id="SpanUpdateMetricsPath" class="input-group-text" >Metrics Path</span>
+                            <input id="InputUpdateMetricsPath" type="text" class="form-control" @bind-value="@update_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="basic-addon1"/>
                         </div>
+                        <div id="ErrorUpdateMetricsPath" class="invalid-feedback">
+                                                    <p>Enter the metrics path beginning with a slash, directly followed by your path (/ABCDEFG). </p>
+                                                </div>
+                        
+                        <!-------------------------------------- Update Scheme -->
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Scheme</label>
                             <select @bind="@update_scheme" class="form-select" id="inputGroupSelect01">
@@ -208,23 +237,9 @@
     </div>
 
 </div>
-
-<!-- Alerts -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-  </symbol>
-  <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
-  </symbol>
-  <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-  </symbol>
-</svg>
 </div>
 
 <!-- Code Section-->
-
 @code {
     
     // Fields
@@ -591,10 +606,6 @@
             JS.InvokeVoidAsync("showErrorFor", "Targets", "Add");
             inputIsValid = false;
         }
-        if (string.IsNullOrEmpty(add_labels))
-        {
-            add_labels = "label_1:value_1";
-        }
 
         // Check for errors
         if (inputIsValid)
@@ -602,21 +613,29 @@
 
             // Fill up collections
             add_targetList.AddRange(add_targets.Split(", "));
-            var labels = add_labels.Split(", ");
-            var splitLabels = from label in labels select label.Split(":");
-            for (var index = 0; index < splitLabels.Count(); index += 1)
+            if (!string.IsNullOrEmpty(add_labels))
             {
-                var key = splitLabels.ElementAt(index)[0];
-                var value = splitLabels.ElementAt(index)[1];
-                var label = new ConfigurationComponents.Label(key, value);
-                add_labelList.Add(label);
+                add_labels = add_labels.Replace(",", ", ");
+                var labels = add_labels.Split(", ");
+                var splitLabels = from label in labels select label.Split(":");
+                for (var index = 0; index < splitLabels.Count(); index += 1)
+                {
+                    var key = splitLabels.ElementAt(index)[0];
+                    var value = splitLabels.ElementAt(index)[1];
+                    var label = new ConfigurationComponents.Label(key, value);
+                    add_labelList.Add(label);
+                }
             }
-
+            
+            
             // Create dict to validate inputs
             Dictionary<string, object> validationDict = new Dictionary<string, object>();
             validationDict.Add("Job Name", add_jobName);
             validationDict.Add("Targets", add_targetList);
-            validationDict.Add("Labels", add_labelList);
+            if (add_labelList.Count > 0)
+            {
+                validationDict.Add("Labels", add_labelList);
+            }
             validationDict.Add("Scrape Interval", add_scrapeInterval);
             validationDict.Add("Scrape Timeout", add_scrapeTimeout);
             validationDict.Add("Metrics Path", add_metricsPath);
@@ -630,9 +649,21 @@
             if (isValid)
             {
 
-                // Create new Prometheus Job
-                var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
-                    add_metricsPath, add_scheme, add_targetList, add_labelList);
+                // Create Prometheus Job placeholder
+                var prometheusJob = new PrometheusJob();
+                
+                if (add_labelList.Count > 0)
+                {
+                    // Replace job
+                    prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
+                        add_metricsPath, add_scheme, add_targetList, add_labelList);
+                }
+                else
+                {
+                    prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
+                        add_metricsPath, add_scheme, add_targetList);
+                }
+                
 
                 // Add to existing model
                 dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
@@ -658,12 +689,144 @@
             }
 
         }
+        
+        // Clear add_labels for clean interface
+        add_labels = "";
     }
 
     private void updateScrapingTarget()
     {
 
-    // Set defaults where necessary
+        // Clear errors if there have been
+        JS.InvokeVoidAsync("hideErrors", "Update");
+        
+        // Clear only lists & reset input boolean
+        update_LabelList.Clear();
+        update_targetList.Clear();
+        inputIsValid = true;
+
+        // Set defaults where necessary & do first input validation (only checks if input is empty)
+        if (string.IsNullOrEmpty(update_jobName))
+        {
+            JS.InvokeVoidAsync("showErrorFor", "JobName", "Update");
+            inputIsValid = false;
+        }
+        if (string.IsNullOrEmpty(update_scrapeInterval))
+        {
+            update_scrapeInterval = "10s";
+        }
+        if (string.IsNullOrEmpty(update_scrapeTimeout))
+        {
+            update_scrapeTimeout = "5s";
+        }
+        if (string.IsNullOrEmpty(update_metricsPath))
+        {
+            update_metricsPath = "/metrics";
+        }
+        if (string.IsNullOrEmpty(update_scheme))
+        {
+            update_scheme = "http";
+        }
+        if (string.IsNullOrEmpty(update_targets))
+        {
+            JS.InvokeVoidAsync("showErrorFor", "Targets", "Update");
+            inputIsValid = false;
+        }
+        
+        // Check for errors
+        if (inputIsValid)
+        {
+
+            // Fill up collections
+            update_targetList.AddRange(update_targets.Split(", "));
+            if (!string.IsNullOrEmpty(update_labels))
+            {
+                update_labels = update_labels.Replace(",", ", ");
+                var labels = update_labels.Split(", ");
+                var splitLabels = from label in labels select label.Split(":");
+                for (var index = 0; index < splitLabels.Count(); index += 1)
+                {
+                    var key = splitLabels.ElementAt(index)[0];
+                    var value = splitLabels.ElementAt(index)[1];
+                    var label = new ConfigurationComponents.Label(key, value);
+                    update_LabelList.Add(label);
+                }
+            }
+            
+            
+            // Create dict to validate inputs
+            Dictionary<string, object> validationDict = new Dictionary<string, object>();
+            validationDict.Add("Targets", update_targetList);
+            if (update_LabelList.Count > 0)
+            {
+                validationDict.Add("Labels", update_LabelList);
+            }
+            validationDict.Add("Scrape Interval", update_scrapeInterval);
+            validationDict.Add("Scrape Timeout", update_scrapeTimeout);
+            validationDict.Add("Metrics Path", update_metricsPath);
+            validationDict.Add("Scheme", update_scheme);
+
+            // Validate
+            validationResult = InputValidator.getInputValidator().validateNewTarget(validationDict, dynamicConfig);
+            bool isValid = validateDict(validationResult);
+            Console.WriteLine("isValid? " + isValid);
+
+            if (isValid)
+            {
+
+                // Create Prometheus Job placeholder
+                var prometheusJob = new PrometheusJob();
+                
+                if (update_LabelList.Count > 0)
+                {
+                    // Replace job
+                    prometheusJob = new PrometheusJob(update_jobName, update_scrapeInterval, update_scrapeTimeout,
+                        update_metricsPath, update_scheme, update_targetList, update_LabelList);
+                }
+                else
+                {
+                    prometheusJob = new PrometheusJob(update_jobName, update_scrapeInterval, update_scrapeTimeout,
+                        update_metricsPath, update_scheme, update_targetList);
+                }
+                
+
+                // Update existing model
+                for (int i = 0; i <= dynamicConfig["scrape_configs"].Count; i++)
+                {
+                    if (dynamicConfig["scrape_configs"][i]["job_name"] != update_jobName) continue;
+                    dynamicConfig["scrape_configs"][i].Remove();
+                    break;
+                }
+                dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
+                Console.WriteLine("Updated job: " + update_jobName);
+                this.updateDropdowns();
+                update_labels = "";
+                this.saveConfig();
+                this.StateHasChanged();
+        
+                // Clear lists & variables
+                cleanInputsFrom("update");
+            }
+
+            else
+            {
+                // We get here if we have invalid input
+                Console.WriteLine("Errors found");
+                var param = JsonConvert.SerializeObject(validationResult);
+                Console.WriteLine(param);
+                JS.InvokeVoidAsync("showErrors", param, "Update");
+            }
+
+        }
+        
+
+        
+    }
+    
+    private void updateScrapingTargetDeprecated()
+    {
+
+        // Set defaults where necessary
         if (string.IsNullOrEmpty(update_jobName))
         {
             update_jobName = "JobDefault";
@@ -693,7 +856,7 @@
             update_labels = "label_1:value_1";
         }
 
-    // Fill up collections
+        // Fill up collections
         update_targetList.AddRange(update_targets.Split(","));
         var labels = update_labels.Split(", ");
         var splitLabels = from label in labels select label.Split(":");
@@ -710,11 +873,11 @@
             
         }
 
-    // Create new Prometheus Job
+        // Create new Prometheus Job
         var prometheusJob = new PrometheusJob(update_jobName, update_scrapeInterval, update_scrapeTimeout,
             update_metricsPath, update_scheme, update_targetList, update_LabelList);
 
-    // Update existing model
+        // Update existing model
         for (int i = 0; i <= dynamicConfig["scrape_configs"].Count; i++)
         {
             if (dynamicConfig["scrape_configs"][i]["job_name"] != update_jobName) continue;

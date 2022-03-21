@@ -36,6 +36,23 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             var staticConfigs = new ConfigurationComponents.Static_Configs(targets, labelDict);
             this.Static_Configs.Add(staticConfigs);
         }
+        
+        // Constructor without labels
+        public PrometheusJob(string job_name, string scrape_interval, string scrape_timeout,
+            string metrics_path, string scheme, List<string> targets)
+        {
+            JobName = job_name;
+            Scrape_Interval = scrape_interval;
+            Scrape_Timeout = scrape_timeout;
+            Metrics_path = metrics_path;
+            Scheme = scheme;
+            Targets = targets;
+            
+
+            var staticConfigs = new ConfigurationComponents.Static_Configs(targets);
+            this.Static_Configs.Add(staticConfigs);
+        }
+
 
         // Properties
         public string JobName { get; set; }
@@ -64,6 +81,19 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
         {
             if (Labels == null) Labels = new List<ConfigurationComponents.Label>();
             Labels.Add(new ConfigurationComponents.Label(key, value));
+        }
+
+        public void addAllLabels(List<ConfigurationComponents.Label> labels)
+        {
+            // Add labels to the static config
+            Dictionary<string, string> labelDict = new Dictionary<string, string>();
+            Labels = labels;
+            foreach (ConfigurationComponents.Label label in labels)
+            {
+                labelDict[label.key] = label.value;
+            }
+
+            Static_Configs[0].labels = labelDict;
         }
 
         public void removeLabel(string key)

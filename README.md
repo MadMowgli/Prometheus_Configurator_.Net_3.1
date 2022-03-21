@@ -20,13 +20,13 @@ why there is a save-button.
 ## How to implement
 A few things to notice when implementing this plugin to your already existing Blazor solution:
 - **Changes on the _Host.cshtml file**
-  - I've added 3 script tags at the end of the _Host.cshtml file:
+  - I've added 4 script tags at the end of the _Host.cshtml file:
     - `<script src="js/bootstrap.bundle.js"></script>`
     - `<script src="_content/BlazorInputFile/inputfile.js"></script>`
     - `<script src="/js/BlazorDownloadFile.js"></script>`
+    - `<script src="/js/formValidation.js"></script>`
   - The following  line needs to be added to the Startup.cs file:
-    - `endpoints.MapControllerRoute("api",
-      "{controller=ConfigurationController}/{action=Info"});`
+    - `endpoints.MapControllerRoute("api", "{controller=ConfigurationController}/{action=Info"});`
 - Make sure to adjust namespaces.
 - Add the page to the Shared/NavMenu.razor to make it visible.
 - Add the following line to your _Imports.razor
@@ -46,6 +46,19 @@ the content of the YML file into an in-memory JSON object is the ease of access 
 in many programming languages such as C#. All changes from the user coming from the UI are performed on this model. When the user saves, the application
 creates an updated prometheus.yml, as well as a previous_prometheus_config.yml. Whenever the page is refreshed, the application checks if a previous_prometheus_config.yml
 is existing and loads this model into memory if so. This way, the application keeps track of the newest model at all times.
+
+### User Input Validation
+Any form of bootstrap element that gets removed after its dismissal, sadly is incompatible with Blazor. Since the RenderComponent actively works with the DOM tree, it gets
+really upset when it finds that there now is a missing element which wasn't missing before - hence resulting in a crash. This is why we implemented our own user input validation solution:
+
+1. On a button click of each form (Add, Update), we first check with a `string.isNullOrEmpty()` if all of the required input has been given.
+   1. Required input is the `JobName` as well as at least 1 `Target`
+2. After this initial check has been made (measured by the `isValid` boolean), we create a dictionary with all the form values and its respective keys and send this to the
+`InputValidator.cs`. This is where our main **server side** input validation happens, using mainly Regex.
+   1. The InputValidator returns a `Dictionary<string, bool>`, which denotes if (and if so, _where_) invalid input has been found.
+3. To give some kind of graphical feedback to the user, we pass this `validationDict` to our `showErrors` JavaScript function. Based on each bool, we can mix-match where graphical feedback
+needs to be given, and which inputs are okay.
+
 
 ### Python Script Addition & Configuration Hosting
 ![PythonWorkflow](Resources/Screenshots/Python%20Script%20Addition/Python%20Script%20Addition%20-%20page%202.png)
