@@ -17,81 +17,9 @@
 <!-- HTML Section -->
 <div class="container-fluid mt-3">
 
-<!-- Error toasts, blazor doesn't handle this well... -->
-@if (showErrorAlert)
-{
-    <div aria-live="polite" aria-atomic="true" class="position-relative">
-        <div class="toast-container position-absolute top-0 end-0 p-3">
-                @for (int i = errorMessageQueue.Count; i > 0; i--)
-                    {
-                        <div id="@i" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="toast-header">
-                                <img src="img/error_red.png" class="rounded me-2" alt="...">
-                                <strong class="me-auto">Error</strong>
-                                <small>There was an input error</small>
-                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                            <div class="toast-body">
-                                @errorMessageQueue.Dequeue()
-                            </div>
-                        </div>
-                        toastIDs.Add(i);
-                    }
-            </div>
-    </div>
-}
-
-@if (string.IsNullOrEmpty(fileString))
-{
-    <div class="row my-4 justify-content-center">
-        <h1 class="display-3 text-center text-muted">Prometheus Configurator</h1>
-
-        <ul class="nav justify-content-center">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
-            </li>
-            <li class="nav-item">
-                <sup>
-                    <h6 class="float-end">
-                        <p>
-                            <span class="badge bg-warning text-dark" style="margin-top:11px;">No previous config found</span>
-                        </p>
-                    </h6>
-                </sup>
-            </li>
-        </ul>
-
-    </div>
-}
-else
-{
-    <div class="row my-4 justify-content-center">
-        <h1 class="display-3 text-center text-muted">Prometheus Configurator </h1>
-
-        <ul class="nav justify-content-center">
-            <li class="nav-item">
-                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
-            </li>
-            <li class="nav-item">
-                <p>
-                    <span class="badge bg-success text-white" style="margin-top:11px;">Config loaded</span>
-                </p>
-            </li>
-        </ul>
-    </div>
-}
-
-
 <!-- Control Forms -->
 <div class="row my-5">
-
-
+    
     <div id="carouselExampleIndicators" class="carousel carousel-dark slide" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -108,37 +36,70 @@ else
                         <h3 class="text-center">Add</h3>
                     </div>
                     <div class="card-body border border-info">
+                        
+                        <!-------------------------------------- Add Job Name -->
                         <div class="input-group needs-validation input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddJobName">Job Name</span>
-                            <input type="text" class="form-control " @bind-value="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="SpanAddJobName" required="required"/>
+                            <span id="SpanAddJobName" class="input-group-text" >Job Name</span>
+                            <input id="InputAddJobName" type="text" class="form-control " @bind-value="@add_jobName" placeholder="Job Name" aria-label="Job Name" aria-describedby="SpanAddJobName" required="required"/>
                         </div>
+                        <div id="ErrorAddJobName" class="invalid-feedback">
+                            <p>Enter your job name</p>
+                        </div>
+
+                        <!-------------------------------------- Add Targets -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddTargets">Targets</span>
-                            <input type="text" class="form-control" @bind-value="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="SpanAddTargets" required/>
+                            <span id="SpanAddTargets" class="input-group-text">Targets</span>
+                            <input id="InputAddTargets" type="text" class="form-control" @bind-value="@add_targets" placeholder="192.168.0.1:8000, 192.168.1.1:3000" aria-label="Scrape Interval" aria-describedby="SpanAddTargets"/>
                         </div>
+                        <div id="ErrorAddTargets" class="invalid-feedback">
+                            <p>Enter your target IPs separated by a comma an optional whitespace (, ) - but always include the target port.</p>
+                        </div>
+
+                        <!-------------------------------------- Add Labels -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddLabels">Labels</span>
-                            <input type="text" class="form-control" @bind-value="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="SpanAddLabels"/>
+                            <span id="SpanAddLabels" class="input-group-text">Labels</span>
+                            <input id="InputAddLabels" type="text" class="form-control" @bind-value="@add_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="SpanAddLabels"/>
                         </div>
+                        <div id="ErrorAddLabels" class="invalid-feedback">
+                            <p>Enter the key-value pairs separated by colon (key:value) and each tuple separated by comma (, ).</p>
+                        </div>
+
+                        <!-------------------------------------- Add Scrape Interval -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddScrapeInterval">Scrape Interval</span>
-                            <input type="text" class="form-control" @bind-value="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="SpanAddScrapeInterval"/>
+                            <span id="SpanAddScrapeInterval" class="input-group-text">Scrape Interval</span>
+                            <input id="InputAddScrapeInterval" type="text" class="form-control" @bind-value="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="SpanAddScrapeInterval"/>
                         </div>
+                        <div id="ErrorAddScrapeInterval" class="invalid-feedback">
+                            <p>Enter the scrape interval in seconds, adding a trailing s (XYZs).</p>
+                        </div>
+
+                        <!-------------------------------------- Add Scrape Timeout -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddScrapeTimeout">Scrape Timeout</span>
-                            <input type="text" class="form-control" @bind-value="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="SpanAddScrapeTimeout"/>
+                            <span id="SpanAddScrapeTimeout" class="input-group-text">Scrape Timeout</span>
+                            <input id="InputAddScrapeTimeout" type="text" class="form-control" @bind-value="@add_scrapeTimeout" placeholder="5s" aria-label="Scrape Timeout" aria-describedby="SpanAddScrapeTimeout"/>
                         </div>
+                        <div id="ErrorAddScrapeTimeout" class="invalid-feedback">
+                            <p>Enter the scrape timeout in seconds, adding a trailing s (XYZs).</p>
+                        </div>
+
+                        <!-------------------------------------- Add Metrics Path -->
                         <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="SpanAddMetricsPath">Metrics Path</span>
-                            <input type="text" class="form-control" @bind-value="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="SpanAddMetricsPath"/>
+                            <span id="SpanAddMetricsPath" class="input-group-text">Metrics Path</span>
+                            <input id="InputAddMetricsPath" type="text" class="form-control" @bind-value="@add_metricsPath" placeholder="/metrics" aria-label="Metrics Path" aria-describedby="SpanAddMetricsPath"/>
                         </div>
+                        <div id="ErrorAddMetricsPath" class="invalid-feedback">
+                            <p>Enter the metrics path beginning with a slash, directly followed by your path (/ABCDEFG). </p>
+                        </div>
+
+                        <!-------------------------------------- Add Scheme -->
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="AddSchemeGroupSelect">Scheme</label>
                             <select class="form-select" id="AddSchemeGroupSelect" required="required">
-                                <option value="https">https</option>
                                 <option value="http">http</option>
+                                <option value="https">https</option>
                             </select>
                         </div>
+
                     </div>
                     <div class="card-footer text-muted">
                         <button type="submit" value="Submit" class="btn btn-primary float-end" @onclick="addScrapingTarget">Add</button>
@@ -260,100 +221,6 @@ else
     <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
   </symbol>
 </svg>
-
-@if (showAddAlert)
-{
-<div class="alert alert-success alert-dismissible fade show d-flex" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-    <div>
-        Target added successfully!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
-</div>
-}
-
-@if (showUpdateAlert)
-{
-<div class="alert alert-success alert-dismissible fade show d-flex" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-    <div>
-        Target updated successfully!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
-</div>
-}
-
-@if (showDeleteAlert)
-{
-<div class="alert alert-success alert-dismissible fade show d-flex" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
-    <div>
-        Target removed successfully!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
-</div>
-}
-
-@if (showUploadAlert)
-{
-<div class="alert alert-success alert-dismissible fade show d-flex" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
-    <div>
-        Configuration uploaded successfully!
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
-</div>
-}
-
-@if (showOverrideAlert)
-{
-<div class="alert alert-warning alert-dismissible fade show d-flex" role="alert">
-  <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
-    <div>
-        Attention: You're about to upload a new configuration. By doing so, you will override the currently existing
-        config, hence deleting all the current files and replacing them with your newly uploaded one.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    
-</div>
-}
-
-@if (showInputAlert)
-{
-    @foreach (string invalidField in invalidInputFields)
-    {
-        <div class="alert alert-danger alert-dismissible fade show d-flex" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
-            <div>
-                Please check your inputs of the @invalidField field. No duplicates are allowed.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-    
-        </div> 
-    }
-
-}
-
-@*
-@if (showErrorAlert)
-{
-    @foreach (string errorMessage in errorMessages)
-    {
-        <div class="alert alert-danger alert-dismissible fade show d-flex" role="alert">
-            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#info-fill"/></svg>
-            <div>
-                @errorMessage
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div> 
-    }
-}
-*@
-
 </div>
 
 <!-- Code Section-->
@@ -406,11 +273,9 @@ else
     private bool showOverrideAlert { get; set; } = false;
     private bool showInputAlert { get; set; } = false;
     private bool showErrorAlert { get; set; } = false;
-
-    private List<string> invalidInputFields { get; set; } = new List<string>();
-    private List<string> errorMessages { get; set; } = new List<string>();
-    private Queue<string> errorMessageQueue { get; set; } = new Queue<string>();
-    private List<int> toastIDs { get; set; } = new List<int>();
+    
+    private bool inputIsValid { get; set; } = true;
+    private Dictionary<string, bool> validationResult { get; set; } = new Dictionary<string, bool>();
 
 
     // ------------------------------------------  Methods to load & save data
@@ -691,19 +556,19 @@ else
     // ------------------------------------------ Methods to manipulate config model
     private void addScrapingTarget()
     {
-     
-        // Clear only lists
+        // Clear errors if there have been
+        JS.InvokeVoidAsync("hideErrors", "Add");
+        
+        // Clear only lists & reset input boolean
         add_labelList.Clear();
         add_targetList.Clear();
+        inputIsValid = true;
 
-        // Clear error queue
-        errorMessages.Clear();
-
-        // Set defaults where necessary
+        // Set defaults where necessary & do first input validation (only checks if input is empty)
         if (string.IsNullOrEmpty(add_jobName))
         {
-            errorMessages.Add("Please provide a job name.");
-            errorMessageQueue.Enqueue("Please provide a job name.");
+            JS.InvokeVoidAsync("showErrorFor", "JobName", "Add");
+            inputIsValid = false;
         }
         if (string.IsNullOrEmpty(add_scrapeInterval))
         {
@@ -723,8 +588,8 @@ else
         }
         if (string.IsNullOrEmpty(add_targets))
         {
-            errorMessages.Add("Please provide at least 1 target.");
-            errorMessageQueue.Enqueue("Please provide at least 1 target.");
+            JS.InvokeVoidAsync("showErrorFor", "Targets", "Add");
+            inputIsValid = false;
         }
         if (string.IsNullOrEmpty(add_labels))
         {
@@ -732,8 +597,9 @@ else
         }
 
         // Check for errors
-        if (errorMessages.Count == 0 && errorMessageQueue.Count == 0)
+        if (inputIsValid)
         {
+
             // Fill up collections
             add_targetList.AddRange(add_targets.Split(", "));
             var labels = add_labels.Split(", ");
@@ -755,17 +621,19 @@ else
             validationDict.Add("Scrape Timeout", add_scrapeTimeout);
             validationDict.Add("Metrics Path", add_metricsPath);
             validationDict.Add("Scheme", add_scheme);
-        
+
             // Validate
-            Dictionary<string, List<bool>> validationResult = InputValidator.getInputValidator().validateNewTarget(validationDict, dynamicConfig);
-            bool isValid = this.validateDict(validationResult);
+            validationResult = InputValidator.getInputValidator().validateNewTarget(validationDict, dynamicConfig);
+            bool isValid = validateDict(validationResult);
+            Console.WriteLine("isValid? " + isValid);
 
             if (isValid)
             {
-            // Create new Prometheus Job
+
+                // Create new Prometheus Job
                 var prometheusJob = new PrometheusJob(add_jobName, add_scrapeInterval, add_scrapeTimeout,
                     add_metricsPath, add_scheme, add_targetList, add_labelList);
-    
+
                 // Add to existing model
                 dynamicConfig["scrape_configs"].Add(JObject.FromObject(prometheusJob.toScrapeConfigObject()));
 
@@ -774,26 +642,22 @@ else
                 this.saveConfig();
                 this.showAddAlert = true;
                 this.StateHasChanged();
-                
-                // Clear lists
-                cleanInputsFrom("add");
-            }
-            
-        }
-        else
-        {
-            Console.WriteLine("Errors found");
-            showErrorAlert = true;
-            Thread.Sleep(100);
-            foreach (int toastID in toastIDs)
-            {
-                 JS.InvokeVoidAsync("showToast", Convert.ToString(toastID));
-            }
-            StateHasChanged();
-        }
-        
-        
 
+                // Clear lists & errors
+                cleanInputsFrom("add");
+                JS.InvokeVoidAsync("hideErrors", "Add");
+            }
+
+            else
+            {
+                // We get here if we have invalid input
+                Console.WriteLine("Errors found");
+                var param = JsonConvert.SerializeObject(validationResult);
+                Console.WriteLine(param);
+                JS.InvokeVoidAsync("showErrors", param, "Add");
+            }
+
+        }
     }
 
     private void updateScrapingTarget()
@@ -968,7 +832,10 @@ else
         this.showUploadAlert = true;
         this.StateHasChanged();
     }
+    
 
+    // ------------------------------------------ Helper methods
+    
     private void updateDropdowns()
     {
         jobNames.Clear();
@@ -979,24 +846,16 @@ else
         this.StateHasChanged();
     }
 
-    private bool validateDict(Dictionary<string, List<bool>> validateDict)
+    private bool validateDict(Dictionary<string, bool> inputValidationResult)
     {
-        var returnVal = true;
-        this.invalidInputFields.Clear();
-        foreach (var entry in validateDict)
+        foreach (KeyValuePair<string, bool> entry in inputValidationResult)
         {
-            foreach (var val in entry.Value)
+            if (!entry.Value)
             {
-                if (!val)
-                {
-                    invalidInputFields.Add(entry.Key);
-                    returnVal = val;
-                }
+                return false;
             }
         }
-
-        showInputAlert = !returnVal;
-        return returnVal;
+        return true;
     }
 
     private void cleanInputsFrom(String operation)
