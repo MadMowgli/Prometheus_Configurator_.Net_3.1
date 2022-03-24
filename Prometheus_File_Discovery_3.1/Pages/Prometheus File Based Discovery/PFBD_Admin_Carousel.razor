@@ -17,6 +17,49 @@
 <!-- HTML Section -->
 <div class="container-fluid mt-3">
 
+@if (string.IsNullOrEmpty(fileString))
+{
+    <div class="row my-4 justify-content-center">
+        <h1 class="display-3 text-center text-muted">Prometheus Configurator</h1>
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="saveConfig">Save Configuration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
+            </li>
+            <li class="nav-item">
+                <sup>
+                    <h6 class="float-end">
+                        <p>
+                            <span class="badge bg-warning text-dark" style="margin-top:11px;">No previous config found</span>
+                        </p>
+                    </h6>
+                </sup>
+            </li>
+        </ul>
+    </div>
+}
+else
+{
+    <div class="row my-4 justify-content-center">
+        <h1 class="display-3 text-center text-muted">Prometheus Configurator </h1>
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" aria-current="page" @onclick:preventDefault @onclick="@saveConfig">Save Configuration</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" @onclick:preventDefault @onclick="downloadFiles">Download Files</a>
+            </li>
+            <li class="nav-item">
+                <p>
+                    <span class="badge bg-success text-white" style="margin-top:11px;">Config loaded</span>
+                </p>
+            </li>
+        </ul>
+    </div>
+}
+
 <!-- Control Forms -->
 <div class="row my-5">
     
