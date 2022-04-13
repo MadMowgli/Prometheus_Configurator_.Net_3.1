@@ -6,6 +6,7 @@
 @using System.IO.Compression
 @using System.Threading
 @using Microsoft.Extensions.FileSystemGlobbing.Internal.PathSegments
+@using Microsoft.Extensions.Logging
 @using Microsoft.VisualBasic.CompilerServices
 @using Newtonsoft.Json.Linq
 @using Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_Discovery.Model
@@ -325,12 +326,13 @@ else
     private List<ConfigurationComponents.Label> update_LabelList { get; } = new List<ConfigurationComponents.Label>();
     private List<string> jobNames = new List<string>();
 
-    private readonly string lastUploadPath = "Data/uploaded_prometheus_config.yml";
-    private readonly string lastConfigPath = "Data/previous_prometheus_config.yml";
-    private readonly string savedYamlConfigPath = "Data/prometheus.yml";
-    private readonly string savedClassicYamlConfigPath = "Data/prometheus.yml";
-    private readonly string savedJsonConfigPath = "Data/targets_";
-    private readonly string zipPath = "Data/prometheus_config.zip";
+    private static readonly string dataDirectory = "Data";
+    private readonly string lastUploadPath = dataDirectory + "/uploaded_prometheus_config.yml";
+    private readonly string lastConfigPath = dataDirectory + "/previous_prometheus_config.yml";
+    private readonly string savedYamlConfigPath = dataDirectory + "/prometheus.yml";
+    private readonly string savedClassicYamlConfigPath = dataDirectory + "/prometheus.yml";
+    private readonly string savedJsonConfigPath = dataDirectory + "/targets_";
+    private readonly string zipPath = dataDirectory + "/prometheus_config.zip";
 
     private string? delete_jobName { get; set; }
     private IFileListEntry file;
@@ -357,7 +359,13 @@ else
     // ------------------------------------------  Methods to load & save data
     protected override async Task OnInitializedAsync()
     {
-    // Load last config
+        // Create data directory if required
+        if (!Directory.Exists(dataDirectory))
+        {
+            Directory.CreateDirectory(dataDirectory);
+        }
+        
+        // Load last config
         if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
@@ -986,7 +994,7 @@ else
         {
             try
             {
-    // Create Backup Dir
+                // Create Backup Dir
                 string todayString = DateTime.Now.ToString("g")
                     .Replace("/", ".")
                     .Replace(" ", "-")
