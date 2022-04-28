@@ -12,6 +12,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
     {
         // Fields
         InputValidator inputValidator = InputValidator.getInputValidator();
+        private readonly string dataPath = "wwwroot/Data/";
 
         [HttpGet]
         public string Info()
@@ -33,12 +34,12 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                 ApiConfiguration apiConfiguration = new ApiConfiguration();
             
                 // Add main prometheus config
-                string promConfig = await System.IO.File.ReadAllTextAsync("Data/prometheus.yml");
+                string promConfig = await System.IO.File.ReadAllTextAsync(dataPath + "prometheus.yml");
                 promConfig = promConfig.Replace(@"\r\n", "");
                 apiConfiguration.getConfigs().Add("prometheus.yml", promConfig);
 
                 // Look for all the JSON files and append them to an array
-                foreach (var fileEntry in Directory.GetFiles("Data", "*.json"))
+                foreach (var fileEntry in Directory.GetFiles(dataPath, "*.json"))
                 {
                     string fileName = Path.GetFileName(fileEntry);
                     apiConfiguration.getConfigs().Add(fileName, await System.IO.File.ReadAllTextAsync(fileEntry));
@@ -69,7 +70,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
             
                 using (var md5 = MD5.Create())
                 {
-                    using (var stream = System.IO.File.OpenRead("Data/prometheus.yml"))
+                    using (var stream = System.IO.File.OpenRead(dataPath + "prometheus.yml"))
                     {
                         Dictionary<string, string> data = new Dictionary<string, string>();
                         data.Add("Checksum", BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant());

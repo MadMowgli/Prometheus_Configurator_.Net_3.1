@@ -50,7 +50,7 @@ function hideErrors(operation) {
     const SpanScrapeInterval = document.getElementById('Span' + operation + 'ScrapeInterval');
     const InputScrapeInterval = document.getElementById('Input' + operation + 'ScrapeInterval');
     const ErrorScrapeInterval = document.getElementById('Error' + operation + 'ScrapeInterval');
-
+    
     const SpanScrapeTimeout = document.getElementById('Span' + operation + 'ScrapeTimeout');
     const InputScrapeTimeout = document.getElementById('Input' + operation + 'ScrapeTimeout');
     const ErrorScrapeTimeout = document.getElementById('Error' + operation + 'ScrapeTimeout');
@@ -60,22 +60,34 @@ function hideErrors(operation) {
     const ErrorMetricsPath = document.getElementById('Error' + operation + 'MetricsPath');
     
     // Fill collections
-    const borders = [
+    let borders = [
         SpanJobName, InputJobName, SpanTargets, InputTargets, SpanLabels, InputLabels,
         SpanScrapeInterval, InputScrapeInterval, SpanScrapeTimeout, InputScrapeTimeout,
         SpanMetricsPath, InputMetricsPath
     ];
     
-    const displays = [
+    let displays = [
         ErrorJobName, ErrorTargets, ErrorLabels, ErrorScrapeInterval, ErrorScrapeTimeout, ErrorMetricsPath
     ];
     
+    
     // Remove errors
     borders.forEach(function(item, index, array) {
-        item.classList.remove('border-danger');
+        try {
+            item.classList.remove('border-danger');
+        } catch (e) {
+            // Do nothing
+        }
+        
     });
+    
+    console.log('wtf?')
     displays.forEach(function(item, index, array) {
-        item.classList.remove('d-inline');
-        item.classList.remove('sticky-top');
+        try {
+            item.classList.remove('d-inline');
+            item.classList.remove('sticky-top');
+        } catch (e) {
+            // Do nothing
+        }
     })
 }

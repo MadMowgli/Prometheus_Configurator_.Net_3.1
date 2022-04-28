@@ -132,7 +132,7 @@ else
                             <input id="InputAddScrapeInterval" type="text" class="form-control" @bind-value="@add_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="SpanAddScrapeInterval"/>
                         </div>
                         <div id="ErrorAddScrapeInterval" class="invalid-feedback">
-                            <p>Enter the scrape interval in seconds, adding a trailing s (XYZs).</p>
+                            <p>Enter the scrape interval in seconds (min 15s), adding a trailing s (XYZs).</p>
                         </div>
 
                         <!-------------------------------------- Add Scrape Timeout -->
@@ -180,7 +180,7 @@ else
                         <!-------------------------------------- Update Job Name -->
                         <div class="input-group input-group-sm mb-3">
                             <label class="input-group-text" for="inputGroupSelect01">Job Name</label>
-                            <select id="inputGroupSelect01" class="form-select" @onchange="@updateUpdateFields" >
+                            <select id="InputUpdateJobName" class="form-select" @onchange="@updateUpdateFields" >
                                 @foreach (string jobName in jobNames)
                                 {
                                     <option value="@jobName">@jobName</option>
@@ -203,8 +203,8 @@ else
                             <input id="InputUpdateLabels" type="text" class="form-control" @bind-value="@update_labels" placeholder="key:value, key2:value2" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div id="ErrorUpdateLabels" class="invalid-feedback">
-                                                    <p>Enter the key-value pairs separated by colon (key:value) and each tuple separated by comma (, ).</p>
-                                                </div>
+                            <p>Enter the key-value pairs separated by colon (key:value) and each tuple separated by comma (, ).</p>
+                        </div>
                         
                         <!-------------------------------------- Update Scrape Interval -->
                         <div class="input-group input-group-sm mb-3">
@@ -212,7 +212,7 @@ else
                             <input id="InputUpdateScrapeInterval" type="text" class="form-control" @bind-value="@update_scrapeInterval" placeholder="10s" aria-label="Scrape Interval" aria-describedby="basic-addon1"/>
                         </div>
                         <div id="ErrorUpdateScrapeInterval" class="invalid-feedback">
-                            <p>Enter the scrape interval in seconds, adding a trailing s (XYZs).</p>
+                            <p>Enter the scrape interval in seconds (min 15s), adding a trailing s (XYZs).</p>
                         </div>
                         
                         <!-------------------------------------- Update Scrape Timeout -->
@@ -326,7 +326,7 @@ else
     private List<ConfigurationComponents.Label> update_LabelList { get; } = new List<ConfigurationComponents.Label>();
     private List<string> jobNames = new List<string>();
 
-    private static readonly string dataDirectory = "Data";
+    private static readonly string dataDirectory = "wwwroot/Data";
     private readonly string lastUploadPath = dataDirectory + "/uploaded_prometheus_config.yml";
     private readonly string lastConfigPath = dataDirectory + "/previous_prometheus_config.yml";
     private readonly string savedYamlConfigPath = dataDirectory + "/prometheus.yml";
@@ -365,7 +365,7 @@ else
             Directory.CreateDirectory(dataDirectory);
         }
         
-        // Load last config
+        // Load last custom config
         if (File.Exists(lastConfigPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
@@ -375,10 +375,11 @@ else
             changes.Add(dynamicConfig);
             currentDynamicConfig = dynamicConfig;
 
-    // Populate update-dropdown panel with jobs
+            // Populate update-dropdown panel with jobs
             this.updateDropdowns();
         }
 
+        // Otherwise, load last uploaded config
         else if (File.Exists(lastUploadPath) && string.IsNullOrEmpty(fileString))
         {
             Console.WriteLine("Uploaded Configuration detected...");
@@ -656,7 +657,7 @@ else
         }
         if (string.IsNullOrEmpty(add_scrapeInterval))
         {
-            add_scrapeInterval = "10s";
+            add_scrapeInterval = "15s";
         }
         if (string.IsNullOrEmpty(add_scrapeTimeout))
         {
@@ -774,12 +775,12 @@ else
         // Set defaults where necessary & do first input validation (only checks if input is empty)
         if (string.IsNullOrEmpty(update_jobName))
         {
-            JS.InvokeVoidAsync("showErrorFor", "JobName", "Update");
+            // JS.InvokeVoidAsync("showErrorFor", "JobName", "Update");
             inputIsValid = false;
         }
         if (string.IsNullOrEmpty(update_scrapeInterval))
         {
-            update_scrapeInterval = "10s";
+            update_scrapeInterval = "15s";
         }
         if (string.IsNullOrEmpty(update_scrapeTimeout))
         {
@@ -871,8 +872,8 @@ else
         
                 // Clear lists & variables
                 cleanInputsFrom("update");
-                JS.InvokeVoidAsync("showToast");
                 JS.InvokeVoidAsync("hideErrors", "Update");
+                JS.InvokeVoidAsync("showToast");
             }
 
             else

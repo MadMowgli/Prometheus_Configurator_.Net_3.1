@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -103,7 +104,7 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                     bool isValid = true;
                     foreach (string target in compare)
                     {
-                        if (!Regex.IsMatch(target, @"(?:[0-9]{1,3}\.){3}[0-9]{1,3}\:[0-9]{2,5}"))
+                        if (!Regex.IsMatch(target, @"^(?:[\d]{1,3}\.){3}[\d]{1,3}\:[\d]{2,5}$"))
                         {
                             isValid = false;
                         }
@@ -131,6 +132,11 @@ namespace Prometheus_File_Discovery_.NET_Core_3._1.Pages.Prometheus_File_Based_D
                 {
                     string compare = (string) entry.Value;
                     bool isValid = Regex.IsMatch(compare, @"^\d+s$");
+                    if (isValid)
+                    {
+                        int compareInt = Int32.Parse(compare.Substring(0, compare.Length - 1));
+                        isValid = compareInt >= 15;
+                    }
                     returnDict.Add(entry.Key, isValid);
                 }
                 
